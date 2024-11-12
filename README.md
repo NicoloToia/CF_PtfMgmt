@@ -1,2 +1,2 @@
 # CF_PtfMgmt
-Computational Finance Portfolio Management
+Computational Finance Portfolio Management Group 6
