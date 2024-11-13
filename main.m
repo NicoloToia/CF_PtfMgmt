@@ -21,6 +21,9 @@ start_date = datetime(2023,1,1);
 end_date = datetime(2023,12,31);
 prices_2023 = prices_data(dates >= start_date & dates <= end_date, :);
 
+% Names
+names = capitalizations.Properties.VariableNames;
+
 % Calculate daily returns for each index in 2023
 returns_2023 = diff(log(prices_2023));
 
@@ -32,7 +35,7 @@ cov_matrix = cov(returns_2023);
 num_assets = length(mean_returns);
 
 % Define the risk-free rate (annual, assuming 4% risk-free rate)
-risk_free_rate = 0.04 / 252; % Convert to daily
+risk_free_rate = 0.04 / 365; % Convert to daily (365 is correct)
 
 %% 1) 
 
