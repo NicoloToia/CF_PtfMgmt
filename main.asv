@@ -175,7 +175,7 @@ pwgt(:, sr == max(sr))
 % Optimization options
 options = optimoptions('fmincon', ...     
         'Algorithm', 'sqp', ...         % Specify the algorithm     
-        'StepTolerance', 1e-12, ...      % Smaller than default StepTolerance     
+        'StepTolerance', 1e-6, ...      % Smaller than default StepTolerance     
         'Display', 'off');              % Show iteration information
 
 % 1. Portfolio C: Minimum Variance Portfolio with constraints
