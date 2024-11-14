@@ -38,22 +38,90 @@ num_assets = length(mean_returns);
 risk_free_rate = 0.04 / 365; % Convert to daily (365 is correct)
 
 %% Portfolio object
+% p = Portfolio('AssetList', assetNames);
+% p = setDefaultConstraints(p);
+% P = setAssetMoments(p, mean_returns, cov_matrix);
+% pwgt = estimateFrontier(P, 100);
+% [pf_risk, pf_Retn] = estimatePortMoments(P, pwgt);
+% plot(pf_risk, pf_Retn)
+% pf_Retn(pf_risk == min(pf_risk))
+% min(pf_risk)
+% max(pf_risk)
+% 
+% (mean_returns' * pwgt(:,1));
+% sum(pwgt(:,1));
+% pwgt(:,1);
+% 
+% sr = (pf_Retn - risk_free_rate) ./ pf_risk;
+% max(sr)
+
+% Initialize a Portfolio object with the list of asset names
 p = Portfolio('AssetList', assetNames);
+
+% Set default constraints for the portfolio: weights sum to 1
+% and there are no short positions (non-negative weights)
 p = setDefaultConstraints(p);
+
+% Set the expected returns and covariance matrix for the assets
+% to define the portfolio's risk and return characteristics
 P = setAssetMoments(p, mean_returns, cov_matrix);
+
+% Estimate the efficient frontier with 100 portfolios
 pwgt = estimateFrontier(P, 100);
+
+% Calculate the risk (standard deviation) and expected returns for each portfolio on the frontier
 [pf_risk, pf_Retn] = estimatePortMoments(P, pwgt);
+
+% Plot the efficient frontier, which shows the risk-return trade-off of optimized portfolios
+figure()
 plot(pf_risk, pf_Retn)
-pf_Retn(pf_risk == min(pf_risk))
-min(pf_risk)
-max(pf_risk)
+xlabel('Volatility')
+ylabel('Return')
+legend('Portfolio froniter with object Portfolio')
 
-(mean_returns' * pwgt(:,1));
-sum(pwgt(:,1));
-pwgt(:,1);
+% Display the return of the portfolio with the minimum risk on the frontier
+ptf_a_return_viaobj = pf_Retn(pf_risk == min(pf_risk));
 
+% Display the minimum risk (volatility) of the portfolios on the frontier
+ptf_a_vol_viaobj = min(pf_risk);
+
+% Display the maximum risk (standard deviation) of the portfolios on the frontier
+% max(pf_risk)
+
+% Calculate the return of the first portfolio on the frontier
+% frontier_returns = (mean_returns' * pwgt(:,:));
+
+% Check that the weights of the first portfolio sum to 1, confirming a fully invested portfolio
+if sum(pwgt(:,1))>1-1e-8 && sum(pwgt(:,1))<1+1e-8 && min(pwgt(:,1))>=0
+    disp('Standard constraints satisfied by Portfolio A')
+else
+    disp('Standard constraints NOT satisfied by Portfolio A')
+end
+
+% Display the weights of the first portfolio on the frontier
+weights_a_viaobj = pwgt(:,1);
+
+% Calculate the Sharpe Ratio for each portfolio on the frontier
 sr = (pf_Retn - risk_free_rate) ./ pf_risk;
-max(sr)
+
+% Display the maximum Sharpe Ratio, representing the portfolio with the best risk-adjusted return
+ptf_b_sharpe_viaobj = max(sr);
+
+% Display results
+disp('Portfolio A (Minimum Variance Portfolio) USING THE OBJECT PORTFOLIO:');
+disp(['Expected Return: ', num2str(ptf_a_return_viaobj)]);
+disp(['Volatility: ', num2str(ptf_a_vol_viaobj)]);
+disp(['Sharpe Ratio: ', num2str(sr(pf_risk == min(pf_risk)))]);
+disp('Weights:');
+disp(weights_a_viaobj');
+
+disp('Portfolio B (Maximum Sharpe Ratio Portfolio):');
+disp(['Expected Return: ', num2str(pf_Retn(sr==ptf_b_sharpe_viaobj))]);
+disp(['Volatility: ', num2str(pf_risk(sr==ptf_b_sharpe_viaobj))]);
+disp(['Sharpe Ratio: ', num2str(ptf_b_sharpe_viaobj)]);
+disp('Weights:');
+disp(pwgt(:,find((sr==ptf_b_sharpe_viaobj)))');
+
 %% 1) 
 
 % Set up optimization problem
