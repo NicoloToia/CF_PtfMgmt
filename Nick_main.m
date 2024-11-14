@@ -129,17 +129,19 @@ P2 = setAssetMoments(P2, mean_returns, cov_matrix);
 % Find the indeces
 sensibleIdx = ismember(P2.AssetList, mkt.sector.sensible);
 cyclicalIdx = ismember(P2.AssetList, mkt.sector.cyclical);
-excludeIdx = ismember(P2.AssetList, ["ConsumerStaPles", "LowVolatility"]);
+excludeIdx_CS = ismember(P2.AssetList, "ConsumerStaples");
+excludeIdx_LV = ismember(P2.AssetList, "LowVolatility");
 sectorIdx = ismember(P2.AssetList, sectors);
-
+%%
 Aineq = [
     -sensibleIdx;
     cyclicalIdx;
-    excludeIdx;
+    excludeIdx_CS;
+    excludeIdx_LV;
     sectorIdx;
 ];
 
-bineq = [-0.1; 0.3; 0; 0.8];
+bineq = [-0.1; 0.3; 0; 0; 0.8];
 % set the constraints
 P2 = setDefaultConstraints(P2);
 P2.AInequality = Aineq;
