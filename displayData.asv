@@ -61,38 +61,27 @@ for i = 1:16
     subplot(4,4,i);
     groupIdx = find(cellfun(@(v) ismember(names(i), v), groups));
     colors = ["#77AC30", "#EDB120", "#A2142F", "#4DBEEE"];
-    yy = returns_2023(:,i);
+    yy = prices_2023(:,i);
     qq = qqplot(yy);
-    set(qq(1),'Marker','o','MarkerFaceColor', colors(groupIdx), ...
-        'MarkerEdgeColor', 'none'); % Change points color
-    title(names(i));
-end
-%% Histograms
-figure;
-for i = 1:16
-    subplot(4,4,i);
-    groupIdx = find(cellfun(@(v) ismember(names(i), v), groups));
-    colors = ["#77AC30", "#EDB120", "#A2142F", "#4DBEEE"];
-    yy = returns_2023(:,i);
-    histogram(yy, 'FaceColor',colors(groupIdx));
+    set(qq(1),'MarkerFaceColor', colors(grou)); % Change points color
+
     title(names(i));
 end
 
 %% Scatter
-% for i = 1:16
-%     for j = 1:16
-%     subplot(16,16, (i-1) * 16 + j);
-%     xx = returns_2023(:,i);
-%     yy = returns_2023(:,j);
-%     scatter(xx, yy)
-%     end
-% end
+for i = 1:16
+    for j = 1:16
+    subplot(16,16, (i-1) * 16 + j);
+    xx = returns_2023(:,i);
+    yy = returns_2023(:,j);
+    scatter(xx, yy)
+    end
+end
 %% Corr plot
 V = corr(returns_2023);
 for i =1:16
     V(i,i) = 0;
 end
-figure;
 heatmap(V);
 colormap summer;
 %%
