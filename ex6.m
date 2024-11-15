@@ -5,6 +5,7 @@ close all;
 % Load data from Excel files
 prices = readtable('prices.xlsx');
 capitalizations = readtable('capitalizations.xlsx');
+names = capitalizations.Properties.VariableNames(2:end);
 
 % Extract dates and price data
 dates = datetime(prices{:, 1}); % Convert to MATLAB datetime
@@ -15,6 +16,8 @@ start_date = datetime(2023, 1, 1);
 end_date = datetime(2023, 12, 31);
 prices_2023 = prices_data(dates >= start_date & dates <= end_date, :);
 
+% Define risk-free rate
+risk_free_rate = 0.04 / 365; % Daily risk-free rate
 
 % Calculate daily returns
 returns_2023 = diff(log(prices_2023));
@@ -47,49 +50,46 @@ min_vol = sqrt(min(eig(reduced_cov_matrix)));
 max_vol = sqrt(max(eig(reduced_cov_matrix)));
 fprintf('Min Volatility: %.4f, Max Volatility: %.4f\n', min_vol, max_vol);
 
-% Adjust target volatility if necessary
-if target_volatility < min_vol
-    fprintf('Adjusting target volatility to %.4f (minimum achievable).\n', min_vol);
-    target_volatility = min_vol;
-elseif target_volatility > max_vol
-    fprintf('Adjusting target volatility to %.4f (maximum achievable).\n', max_vol);
-    target_volatility = max_vol;
-end
-
 % Create and configure portfolio object
 p = Portfolio();
 p = setAssetMoments(p, reduced_mean_returns, reduced_cov_matrix);
 p = setDefaultConstraints(p);
 
+weights_pf_P = estimateFrontier(p, 100);
 
-% Optimize portfolio
-[weights_pf_P, pf_risk_P, Exp_return_pf_P] = estimateFrontierByRisk(p, target_volatility);
+% estimate portfolio moments
+[pf_risk_P, Exp_return_pf_P] = estimatePortMoments(p, weights_pf_P);
 
-Exp_return_pf_P = Exp_return_pf_P' * weights_pf_P;
+% exclude every volatility that is greater than target volatility
+idx = (pf_risk_P <= target_volatility);
 
-pf_risk_P = pf_risk_P'*weights_pf_P;
+weights_pf_P = weights_pf_P(:,idx);
+
+% find maximum return
+[Exp_return_pf_P, idx] = max(Exp_return_pf_P(idx))
+
+weights_pf_P = weights_pf_P(:,idx);
+
+pf_risk_P = pf_risk_P(idx);
+
 
 % Compute Sharpe Ratio
-risk_free_rate = 0.04 / 365; % Daily risk-free rate
 sr_pf_P = (Exp_return_pf_P - risk_free_rate) / pf_risk_P;
 
 
-% Display header
-disp('===========================================================================');
-disp('Optimized Portfolio with Constraints');
-disp('===========================================================================');
 
-% Create a table for portfolio weights
-asset_table = table((1:length(weights_pf_P))', weights_pf_P, ...
-    'VariableNames', {'Principal_Component', 'Weight'});
-
-% Display the table
-disp(asset_table);
-
-% Display performance metrics
-disp('-------------------------------------------');
+% Display Portfolio A - Minimum Variance Portfolio
+disp('===========================================================================')
+disp('    Maximum expected return with PCA  (Portfolio P)   ')
+disp('===========================================================================')
+disp('Asset Name                Weight')
+disp('-------------------------------------------')
+for i = 1:length(weights_pf_P)
+    fprintf('%-25s %.4f\n', names{i}, weights_pf_P(i));
+end
+disp('-------------------------------------------')
 fprintf('%-25s %.4f\n', 'Expected Return', Exp_return_pf_P);
 fprintf('%-25s %.4f\n', 'Volatility', pf_risk_P);
 fprintf('%-25s %.4f\n', 'Sharpe Ratio', sr_pf_P);
 fprintf('%-25s %.4f\n', 'Sum of weights', sum(weights_pf_P));
-disp('===========================================================================');
+disp('  ')
