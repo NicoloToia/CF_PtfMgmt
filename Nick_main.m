@@ -386,7 +386,8 @@ portfolio_m_std = sqrt(weights_m' * cov_matrix * weights_m); %NEW
 portfolio_m_SR = (portfolio_m_return - risk_free_rate) / portfolio_m_std;
 
 % Portfolio N:  Maximum Entropy (in asset volatility) Portfolio
-entropy = @(w) sum(w.^2' * diag(cov_matrix)/ sum(w.^2' * diag(cov_matrix)) * log(w.^2' * diag(cov_matrix)/ sum(w.^2' * diag(cov_matrix))));
+% entropy = @(w) sum(w.^2' * diag(cov_matrix)/ sum(w.^2' * diag(cov_matrix)) * log(w.^2' * diag(cov_matrix)/ sum(w.^2' * diag(cov_matrix))));
+entropy = @(w) sum(w.^2 .* diag(cov_matrix)/ sum(w.^2 .* diag(cov_matrix)) .* log(w.^2 .* diag(cov_matrix)/ sum(w.^2 .* diag(cov_matrix))));%NEW Matte
 
 [weights_n, ptf_n_var] = fmincon(entropy, initial_guess, A, b, Aeq, beq, lb, ub, nonlinconstr, options);
 portfolio_n_return = mean_returns' * weights_n;
