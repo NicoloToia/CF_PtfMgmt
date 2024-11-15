@@ -38,14 +38,16 @@ options = optimoptions('fmincon', ...
 diversification_ratio = @(w) -log(w' * sqrt(diag(cov_matrix)) / sqrt(w' * cov_matrix * w));
 
 [weights_m, ptf_m_var] = fmincon(diversification_ratio, initial_guess, A, b, Aeq, beq, lb, ub, nonlinconstr, options);
+ptf_m_var = -ptf_m_var;
 portfolio_m_return = mean_returns' * weights_m;
 portfolio_m_std = sqrt(ptf_m_var);
 
 %%
 % Portfolio N:  Maximum Entropy (in asset volatility) Portfolio
-entropy = @(w) sum(w.^2' * diag(cov_matrix)/ sum(w.^2' * diag(cov_matrix)) * log(w.^2' * diag(cov_matrix)/ sum(w.^2' * diag(cov_matrix))));
+entropy = @(w) sum(w.^2 .* diag(cov_matrix)/ sum(w.^2 .* diag(cov_matrix)) .* log(w.^2 .* diag(cov_matrix)/ sum(w.^2 .* diag(cov_matrix))));
 
 [weights_n, ptf_n_var] = fmincon(entropy, initial_guess, A, b, Aeq, beq, lb, ub, nonlinconstr, options);
+ptf_n_var = -ptf_n_var;
 portfolio_n_return = mean_returns' * weights_n;
 portfolio_n_std = sqrt(ptf_n_var);
 

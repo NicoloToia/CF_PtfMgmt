@@ -67,6 +67,17 @@ for i = 1:16
         'MarkerEdgeColor', 'none'); % Change points color
     title(names(i));
 end
+%% Shapiro-Wilk and Shapiro-Francia normality tests
+fprintf('\nlegend \nname --> H0: accept normality \nname --> H1: reject normality \n\n')
+H = [];
+pValue = [];
+W = [];
+for i = 1 : size(returns_2023,2)
+    % swtest performs the Shapiro-Francia test when the series is Leptokurtik (kurtosis > 3), 
+    % otherwise it performs the Shapiro-Wilk test.
+    [H(i), pValue(i), W(i)] = swtest(returns_2023(:,i));
+    fprintf('%s --> H%d\n', names{i}, H(i));
+end
 %% Histograms
 figure;
 for i = 1:16
