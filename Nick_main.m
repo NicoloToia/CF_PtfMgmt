@@ -379,7 +379,10 @@ diversification_ratio = @(w) -log(w' * sqrt(diag(cov_matrix)) / sqrt(w' * cov_ma
 
 [weights_m, ptf_m_var] = fmincon(diversification_ratio, initial_guess, A, b, Aeq, beq, lb, ub, nonlinconstr, options);
 portfolio_m_return = mean_returns' * weights_m;
-portfolio_m_std = sqrt(ptf_m_var);
+
+% portfolio_m_std = sqrt(ptf_m_var);
+portfolio_m_std = sqrt(weights_m' * cov_matrix * weights_m); %NEW
+
 portfolio_m_SR = (portfolio_m_return - risk_free_rate) / portfolio_m_std;
 
 % Portfolio N:  Maximum Entropy (in asset volatility) Portfolio
@@ -387,7 +390,10 @@ entropy = @(w) sum(w.^2' * diag(cov_matrix)/ sum(w.^2' * diag(cov_matrix)) * log
 
 [weights_n, ptf_n_var] = fmincon(entropy, initial_guess, A, b, Aeq, beq, lb, ub, nonlinconstr, options);
 portfolio_n_return = mean_returns' * weights_n;
-portfolio_n_std = sqrt(ptf_n_var);
+
+% portfolio_n_std = sqrt(ptf_n_var);
+portfolio_n_std = sqrt(weights_n' * cov_matrix * weights_n); %NEW
+
 portfolio_n_SR = (portfolio_n_return - risk_free_rate) / portfolio_n_std;
 
 % Display Portfolio M - Maximum Diversified Portfolio
