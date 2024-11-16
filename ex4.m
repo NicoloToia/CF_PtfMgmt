@@ -20,12 +20,14 @@ dates = datetime(dates);
 start_date = datetime(2023,1,1);
 end_date = datetime(2023,12,31);
 prices_2023 = prices_data(dates >= start_date & dates <= end_date, :);
+start_test = datetime(2024, 1, 1);
+prices_2024 = prices_data(dates >= start_test, :);
 
 % Names
 assetNames = capitalizations.Properties.VariableNames(2:end);
 
 % Calculate daily returns for each index in 2023
-returns_2023 = diff(log(prices_2023));
+returns_2023 = tick2ret(prices_2023);
 
 % Calculate mean returns and covariance matrix
 mean_returns = mean(returns_2023)';
@@ -126,3 +128,33 @@ ba = bar(pwBL','stacked', 'FaceColor','flat');
 ba(1).CData = [0.3 0.3 0.7];
 ba(2).CData = [1 1 1]*0.8;
 legend(assetNames)
+
+%% Equity Curve
+portfolio_EW = ones(num_assets,1)/num_assets;
+% equity_I = getEquityandMetrices(portfolio_I,prices_2023);
+% equity_L = getEquityandMetrices(portfolio_L,prices_2023);
+% figure;
+% plot(equity_I, 'LineWidth',3)
+% hold on;
+% plot(equity_L, 'LineWidth',3)
+% legend('Portfolio I', 'Portfolio L');
+% % Test 2024
+% equity_I_test = getEquityandMetrices(portfolio_I, prices_2024);
+% equity_L_test = getEquityandMetrices(portfolio_L, prices_2024);
+% figure;
+% plot(equity_I_test, 'LineWidth',3)
+% hold on;
+% plot(equity_L_test, 'LineWidth',3)
+% legend('Portfolio I', 'Portfolio L');
+Ws = [portfolio_I, portfolio_L, portfolio_EW];
+ptfNames = ["Portfolio I", "Portfolio L", "Portfolio EW"];
+equities = getEquityandMetrices(Ws,...
+                                prices_2023,...
+                                ptfNames,...
+                                "2023");
+equities = getEquityandMetrices(Ws,...
+                                prices_2024,...
+                                ptfNames,...
+                                "2024");
+
+

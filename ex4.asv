@@ -25,7 +25,7 @@ prices_2023 = prices_data(dates >= start_date & dates <= end_date, :);
 assetNames = capitalizations.Properties.VariableNames(2:end);
 
 % Calculate daily returns for each index in 2023
-returns_2023 = diff(log(prices_2023));
+returns_2023 = tick2ret(prices_2023);
 
 % Calculate mean returns and covariance matrix
 mean_returns = mean(returns_2023)';
@@ -125,4 +125,16 @@ figure;
 ba = bar(pwBL','stacked', 'FaceColor','flat');
 ba(1).CData = [0.3 0.3 0.7];
 ba(2).CData = [1 1 1]*0.8;
-legend(a)
+legend(assetNames)
+
+%% Equity Curve
+ret = prices_2023(2:end, :)./ prices_2023(1:end-1,:);
+equity_I = cumprod(ret*portfolio_I);
+equity_I = 100.*equity_I/equity_I(1);
+equity_L = cumprod(ret*portfolio_L);
+equity_L = 100.*equity_L/equity_L(1);
+plot(equity_I, 'LineWidth',2)
+hold on;
+plot(equity_L, 'LineWidth',2)
+legend('Portfolio I', 'Portfolio_L');
+% Metrices
