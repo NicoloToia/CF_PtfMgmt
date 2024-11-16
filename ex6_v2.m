@@ -22,13 +22,13 @@ prices_2023 = prices_data(dates >= start_date & dates <= end_date, :);
 risk_free_rate = 0.04 / 365; % Daily risk-free rate
 
 % Calculate daily returns
-returns_2023 = diff(log(prices_2023));
+returns_2023 = tick2ret(prices_2023);
 
 %% Standardize returns for PCA
 returns_std = zscore(returns_2023);
 
 % Perform PCA
-[coeff, score, latent, ~, explained] = pca(returns_std);
+[coeff, score, latent, ~, explained] = pca(returns_std, 'NumComponents',16);
 
 % Select components explaining >90% variance
 cumulative_variance = cumsum(explained);

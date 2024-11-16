@@ -18,7 +18,9 @@ rng(42); % For reproducibility
 % start timer
 tic
 
-% Add path to functions
+% Set plot flag
+%plot_flag = 1; % Set to 1 to plot data
+plot_flag = 0; % Set to 0 to not plot data
 
 %% PART A 
 
@@ -44,14 +46,6 @@ prices_2023 = prices_data(dates >= start_date & dates <= end_date, :);
 % Calculate daily returns for each index in 2023
 returns_2023 = diff(log(prices_2023));
 
-% cyclical = ["ConsumerDiscretionary", "Financials", "Materials", "RealEstate", "Industrials"];
-% defensive = ["ConsumerStaples", "Utilities", "HealthCare"];
-% sensible = ["Energy", "InformationTechnology", "CommunicationServices"];
-
-% factor = ["Momentum","Value","Growth","Quality","LowVolatility"];
-
-% groups = {cyclical, defensive, sensible, factor};
-
 mean_returns = mean(returns_2023)';
 cov_matrix = cov(returns_2023);
 
@@ -60,14 +54,11 @@ num_assets = length(mean_returns);
 
 % Define the risk-free rate (annual, assuming 4% risk-free rate)
 risk_free_rate = 0.04 / 365; % Convert to daily (365 is correct)
-% DA AGGIUNGERE DISPLAY DI EDO
-%% 1. Efficient Frontier
 
-% Portfolio A: Minimum Variance Portfolio
-[~,minRisk_P1, minRiskWgt_P1, minRiskRet_P1, minRiskSR_P1] = minRiskPortfolio(names, mean_returns, cov_matrix, risk_free_rate);
-
-% Portfolio B: Maximum Sharpe Ratio Portfolio
-[P1,maxSharpeRisk_P1, maxSharpeWgt_P1, maxSharpeRet_P1, maxSharpeSR_P1] = maxSharpPortfolio(names, mean_returns, cov_matrix, risk_free_rate);
+%% Plot data
+if plot_flag == 1
+    plotData(prices_2023, returns_2023, names);
+end
 
 %% market structure
 
@@ -81,6 +72,21 @@ mkt.sector.sensible = ["Energy", "InformationTechnology", "CommunicationServices
 % Define factors
 mkt.factor = ["Momentum", "Value", "Growth", "Quality", "LowVolatility"];
 
+% cyclical = ["ConsumerDiscretionary", "Financials", "Materials", "RealEstate", "Industrials"];
+% defensive = ["ConsumerStaples", "Utilities", "HealthCare"];
+% sensible = ["Energy", "InformationTechnology", "CommunicationServices"];
+
+% factor = ["Momentum","Value","Growth","Quality","LowVolatility"];
+
+% groups = {cyclical, defensive, sensible, factor};
+
+%% 1. Efficient Frontier
+
+% Portfolio A: Minimum Variance Portfolio
+[~,minRisk_P1, minRiskWgt_P1, minRiskRet_P1, minRiskSR_P1] = minRiskPortfolio(names, mean_returns, cov_matrix, risk_free_rate);
+
+% Portfolio B: Maximum Sharpe Ratio Portfolio
+[P1,maxSharpeRisk_P1, maxSharpeWgt_P1, maxSharpeRet_P1, maxSharpeSR_P1] = maxSharpPortfolio(names, mean_returns, cov_matrix, risk_free_rate);
 
 %% 2. Efficient Frontier with additional constraints
 
@@ -91,7 +97,6 @@ mkt.factor = ["Momentum", "Value", "Growth", "Quality", "LowVolatility"];
             maxSharpeRisk_P2, maxSharpeSR_P2] = ...
              Portfolio_with_constraints(mean_returns,cov_matrix, names, risk_free_rate,mkt);
 
-
 %% 3. Efficient Frontier and Resampling Method
 
 % Portfolio E and F: Minimum Variance Portfolio with resampling
@@ -101,7 +106,6 @@ mkt.factor = ["Momentum", "Value", "Growth", "Quality", "LowVolatility"];
         maxSharpeSR_P1_Rsim, maxSharpeWgt_P1_Rsim, maxSharpeRet_P1_Rsim, maxSharpeRisk_P1_Rsim, ...
         maxSharpeSR_P2_Rsim, maxSharpeWgt_P2_Rsim, maxSharpeRet_P2_Rsim, maxSharpeRisk_P2_Rsim] = ...
      resampling_method(mean_returns, cov_matrix, P1, P2, risk_free_rate,num_assets,names);
-
 
 %% 5.  Compute the Maximum Diversified Portfolio and the Maximum Entropy (in asset volatility) Portfolio
 
