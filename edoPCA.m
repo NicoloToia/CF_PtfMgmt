@@ -96,14 +96,19 @@ covarAsset = factorLoading*covarFactor*factorLoading' + D;
 targetRisk = 0.1;  % Standard deviation of portfolio return
 tRisk = targetRisk*targetRisk;  % Variance of portfolio return
 
-optimProb = optimproblem('Description','Portfolio with factor covariance matrix','ObjectiveSense','max');
-wgtAsset = optimvar('asset_weight', num_assets, 1, 'Type', 'continuous', 'LowerBound', 0, 'UpperBound', 1);
+optimProb = optimproblem('Description',...
+    'Portfolio with factor covariance matrix','ObjectiveSense','max');
+wgtAsset = optimvar('asset_weight', num_assets, 1,...
+    'Type', 'continuous', 'LowerBound', 0, 'UpperBound', 1);
 wgtFactor = optimvar('factor_weight', k, 1, 'Type', 'continuous');
 
 optimProb.Objective = sum(mean_ret*wgtAsset);
 
-optimProb.Constraints.asset_factor_weight = factorLoading'*wgtAsset - wgtFactor == 0;
-optimProb.Constraints.risk = wgtFactor'*covarFactor*wgtFactor + wgtAsset'*D*wgtAsset <= tRisk;
+optimProb.Constraints.asset_factor_weight = ...
+    factorLoading'*wgtAsset - wgtFactor == 0;
+optimProb.Constraints.risk = ...
+    wgtFactor'*covarFactor*wgtFactor + ...
+    wgtAsset'*D*wgtAsset <= tRisk;
 optimProb.Constraints.budget = sum(wgtAsset) == 1;
 
 x0.asset_weight = ones(num_assets, 1)/num_assets;
@@ -114,8 +119,23 @@ x = solve(optimProb,x0, "Options",opt);
 portfolio_P = x.asset_weight;
 factorWgt1 = x.factor_weight;
 %%
-portfolio_EW = ones(num_assets, 1)/num_assets;
-equity_P = getEquityandMetrices([portfolio_P portfolio_EW],...
-    prices_2023,["Portfolio P", "Portfolio EW"],...
-    "2023");
+portfolio_EW = ones(num_assets,1)/num_assets;
+equity_P = getEquityandMetrices([portfolio_P portfolio_EW], prices_2023, ...
+    ["P", "EW"], "2023");
+figure;
+pie(portfolio_P (portfolio_P >= 0.001), assetNames(portfolio_P >= 0.001))
+T2 = table(assetNames', round(portfolio_P,4))
+
+%% Using PTF Object
+covarAsset = factorLoading*covarFactor*factorLoading'+D;
+port = Portfolio("AssetMean", mean_ret, 'AssetCovar', round(covarAsset,13),...
+    'LowerBound', 0, 'UpperBound', 1, ...
+    'Budget', 1);
+portfolio_P = estimateFrontierByRisk(port, targetRisk);
+T2 = table(assetNames', round(portfolio_P,4))
+portfolio_EW = ones(num_assets,1)/num_assets;
+equity_P = getEquityandMetrices([portfolio_P portfolio_EW], prices_2023, ...
+    ["P", "EW"], "2023");
+figure
+pie(portfolio_P (portfolio_P >= 0.01), assetNames(portfolio_P >= 0.01))
 

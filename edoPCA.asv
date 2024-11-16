@@ -59,9 +59,8 @@ mean_ret = mean(ret);
 std_ret = (ret - mean_ret) ./ std(ret);
 
 k = 16;
-[factorLoading,factorRetn,latent,r,explained,mu] =...
+[~,~,latent,~,~,~] =...
     pca(std_ret, 'NumComponents',k);
-covarFactor = cov(factorRetn);
 % coeff -> loadings
 % score -> scores matrix
 % latent
@@ -70,7 +69,8 @@ covarFactor = cov(factorRetn);
 TotVar = sum(latent);
 explainedVar = latent(1:k)/TotVar;
 CumExplainedVar = cumsum(explainedVar);
-find(CumExplainedVar >)
+find(CumExplainedVar >= .9, 1)
+% Choosing k = 6
 %%
 h = figure();
 subplot(1,2,1)
@@ -79,4 +79,63 @@ title("% Explained Variance");
 subplot(1,2,2)
 bar(CumExplainedVar)
 title("% Cumulative Variance");
+%%
+k = 6;
+[factorLoading,factorRetn,latent,r,explained,mu] =...
+    pca(std_ret, 'NumComponents',k);
+covarFactor = cov(factorRetn);
+%% PTF OPTIMIZATION
+% Reconstruct 
+reconReturn = factorRetn * factorLoading' + mean_ret;
+unexplainedRetn = ret - reconReturn; % IDIOSYNCRATHIC PART (epsilon)
+% 
+unexplainedCov = diag(cov(unexplainedRetn));
+D = diag(unexplainedCov);
+covarAsset = factorLoading*covarFactor*factorLoading' + D;
+
+targetRisk = 0;  % Standard deviation of portfolio return
+tRisk = targetRisk*targetRisk;  % Variance of portfolio return
+
+optimProb = optimproblem('Description',...
+    'Portfolio with factor covariance matrix','ObjectiveSense','max');
+wgtAsset = optimvar('asset_weight', num_assets, 1,...
+    'Type', 'continuous', 'LowerBound', 0, 'UpperBound', 1);
+wgtFactor = optimvar('factor_weight', k, 1, 'Type', 'continuous');
+
+optimProb.Objective = sum(mean_ret*wgtAsset);
+
+optimProb.Constraints.asset_factor_weight = ...
+    factorLoading'*wgtAsset - wgtFactor == 0;
+optimProb.Constraints.risk = ...
+    wgtFactor'*covarFactor*wgtFactor + ...
+    wgtAsset'*D*wgtAsset <= tRisk;
+optimProb.Constraints.budget = sum(wgtAsset) == 1;
+
+x0.asset_weight = ones(num_assets, 1)/num_assets;
+x0.factor_weight = zeros(k, 1);
+opt = optimoptions("fmincon", "Algorithm","sqp", "Display", "off", ...
+    'ConstraintTolerance', 1.0e-8, 'OptimalityTolerance', 1.0e-8, 'StepTolerance', 1.0e-8);
+x = solve(optimProb,x0, "Options",opt);
+portfolio_P = x.asset_weight;
+factorWgt1 = x.factor_weight;
+%%
+portfolio_EW = ones(num_assets,1)/num_assets;
+equity_P = getEquityandMetrices([portfolio_P portfolio_EW], prices_2023, ...
+    ["P", "EW"], "2023");
+figure;
+pie(portfolio_P (portfolio_P >= 0.001), assetNames(portfolio_P >= 0.001))
+T2 = table(assetNames', round(portfolio_P,4))
+
+%% Using PTF Object
+covarAsset = factorLoading*covarFactor*factorLoading'+D;
+port = Portfolio("AssetMean", mean_ret, 'AssetCovar', round(covarAsset,13),...
+    'LowerBound', 0, 'UpperBound', 1, ...
+    'Budget', 1);
+portfolio_P = estimateFrontierByRisk(port, targetRisk);
+T2 = table(assetNames', round(portfolio_P,4))
+portfolio_EW = ones(num_assets,1)/num_assets;
+equity_P = getEquityandMetrices([portfolio_P portfolio_EW], prices_2024, ...
+    ["P", "EW"], "2024");
+figure
+pie(portfolio_P (portfolio_P >= 0.01), assetNames(portfolio_P >= 0.01))
 
