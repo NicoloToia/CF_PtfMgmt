@@ -11,10 +11,12 @@ names = capitalizations.Properties.VariableNames(2:end);
 dates = datetime(prices{:, 1}); % Convert to MATLAB datetime
 prices_data = prices{:, 2:end};
 
+
 % Filter prices for the year 2023
 start_date = datetime(2023, 1, 1);
 end_date = datetime(2023, 12, 31);
 prices_2023 = prices_data(dates >= start_date & dates <= end_date, :);
+
 
 % Define risk-free rate
 risk_free_rate = 0.04 / 365; % Daily risk-free rate
@@ -60,7 +62,7 @@ beq = 1;
 nonlincon = @(w) deal([], sqrt(w' * cov_matrix * w) - target_volatility);
 
 % Objective function: minimize negative expected return
-objective = @(w) -w' * mean_returns;
+objective = @(w) - w' * mean_returns;
 
 % Solve optimization problem using fmincon
 options = optimoptions('fmincon', 'Display', 'iter', 'Algorithm', 'interior-point');

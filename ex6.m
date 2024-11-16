@@ -22,8 +22,8 @@ risk_free_rate = 0.04 / 365; % Daily risk-free rate
 % Calculate daily returns
 returns_2023 = diff(log(prices_2023));
 
-% Standardize returns for PCA
-returns_std = zscore(returns_2023);
+
+returns_std = zscore(returns_2023, 0, 2);
 
 % Perform PCA
 [coeff, score, latent, ~, explained] = pca(returns_std);
