@@ -17,7 +17,7 @@ cyclicalIdx = ismember(P2.AssetList, mkt.sector.cyclical);
 cap_wghtd_ptf = capitalizations{1, names} / sum(capitalizations{1, names});
 
 % Set up optimization problem
-% Iniial guess
+% Initial guess
 initial_guess = ones(num_assets, 1) / num_assets;
 % Set default constraints for the portfolio: weights sum to 1
 % and there are no short positions (non-negative weights)
@@ -42,10 +42,9 @@ options = optimoptions('fmincon', ...
 % Portfolio M: Maximum Diversified Portfolio
 diversification_ratio = @(w) -log(w' * sqrt(diag(cov_matrix)) / sqrt(w' * cov_matrix * w));
 
-[weights_m, ptf_m_var] = fmincon(diversification_ratio, initial_guess, A, b, Aeq, beq, lb, ub, nonlinconstr, options);
+[weights_m, minvalue_m] = fmincon(diversification_ratio, initial_guess, A, b, Aeq, beq, lb, ub, nonlinconstr, options);
 portfolio_m_return = mean_returns' * weights_m;
 
-% portfolio_m_std = sqrt(ptf_m_var);
 portfolio_m_std = sqrt(weights_m' * cov_matrix * weights_m); %NEW
 
 portfolio_m_SR = (portfolio_m_return - risk_free_rate) / portfolio_m_std;
@@ -54,10 +53,9 @@ portfolio_m_SR = (portfolio_m_return - risk_free_rate) / portfolio_m_std;
 % entropy = @(w) sum(w.^2' * diag(cov_matrix)/ sum(w.^2' * diag(cov_matrix)) * log(w.^2' * diag(cov_matrix)/ sum(w.^2' * diag(cov_matrix))));
 entropy = @(w) sum(w.^2 .* diag(cov_matrix)/ sum(w.^2 .* diag(cov_matrix)) .* log(w.^2 .* diag(cov_matrix)/ sum(w.^2 .* diag(cov_matrix))));%NEW Matte
 
-[weights_n, ptf_n_var] = fmincon(entropy, initial_guess, A, b, Aeq, beq, lb, ub, nonlinconstr, options);
+[weights_n, minvalue_n] = fmincon(entropy, initial_guess, A, b, Aeq, beq, lb, ub, nonlinconstr, options);
 portfolio_n_return = mean_returns' * weights_n;
 
-% portfolio_n_std = sqrt(ptf_n_var);
 portfolio_n_std = sqrt(weights_n' * cov_matrix * weights_n); %NEW
 
 portfolio_n_SR = (portfolio_n_return - risk_free_rate) / portfolio_n_std;
