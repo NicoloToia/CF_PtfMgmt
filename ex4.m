@@ -71,7 +71,8 @@ q = q*bizyear2bizday;
 Omega = Omega*bizyear2bizday;
 % Plot views distribution
 X_views = mvnrnd(q, Omega, 20000);
-hist3(X_views,'CDataMode','auto','FaceColor','interp','Nbins',[50 50])
+% figure;
+% hist3(X_views,'CDataMode','auto','FaceColor','interp','Nbins',[50 50])
 %% Capitalizations Weighted PTF
 figure;
 bar(assetNames,caps);
@@ -80,9 +81,9 @@ lambda = 1.2;
 mu_market = lambda.*cov_matrix*weightsCaps;
 cov_market = tau.*cov_matrix;
 % plot prior distribution
-figure;
+% figure;
 X = mvnrnd(mu_market, cov_market, 20000);
-histogram(X)
+% histogram(X)
 %% Black Litterman Formulas
 muBL = inv(inv(cov_market)+P'*inv(Omega)*P)*...
     (P'*inv(Omega)*q + inv(cov_market)*mu_market); 
@@ -93,6 +94,7 @@ table(assetNames', mu_market*252, muBL*252,...
 portBL = Portfolio('NumAssets', num_assets, 'Name', 'MV with BL');
 portBL = setDefaultConstraints(portBL);
 portBL = setAssetMoments(portBL, muBL, cov_matrix+covBL);
+portBL.RiskFreeRate = 0;
 % Estimate Frontier
 pwBL = estimateFrontier(portBL, 10000);
 [risksBL, retBL] = estimatePortMoments(portBL, pwBL);
@@ -102,14 +104,6 @@ risk_I = risksBL(1);
 % Max Sharpe Ratio 
 portfolio_L = estimateMaxSharpeRatio(portBL);
 [risk_L, return_L] = estimatePortMoments(portBL, portfolio_L);
-figure;
-plot(risksBL, retBL, 'LineWidth', 2);
-hold on;
-scatter(risk_I, return_I, 'marker', 'p', 'SizeData', 400,...
-    'MarkerFaceColor','green', 'MarkerEdgeColor','k');
-scatter(risk_L, return_L, 'marker', 'o', 'SizeData', 200,...
-    'MarkerFaceColor','red', 'MarkerEdgeColor','k');
-legend('Frontier', 'MVP', 'Max Sharpe Ratio', 'location','southeast');
 %% Pie plot of weights
 figure;
 ax1 = subplot(1,2,1);
@@ -121,13 +115,6 @@ ax2 = subplot(1,2,2);
 idx = portfolio_L > 0.0001;
 pie(ax2, portfolio_L(idx), assetNames(idx));
 title(ax2, "Max Sharpe Ratio", 'Position', [-0.05, 1.6, 0]);
-
-%% Stacked weigths Frontier
-figure;
-ba = bar(pwBL','stacked', 'FaceColor','flat');
-ba(1).CData = [0.3 0.3 0.7];
-ba(2).CData = [1 1 1]*0.8;
-legend(assetNames)
 
 %% Equity Curve
 portfolio_EW = ones(num_assets,1)/num_assets;
