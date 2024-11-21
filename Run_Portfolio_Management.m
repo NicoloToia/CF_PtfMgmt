@@ -9,7 +9,7 @@
 % Date: 2024-11-13
 
 clc
-clear all
+% clear all
 close all
 warning off
 
@@ -117,7 +117,7 @@ view1.delta = 2/100;
 % View 2
 view2 = struct();
 view2.overperformer = "Momentum";
-view2.underperformer = "Volatility";
+view2.underperformer = "LowVolatility";
 view2.delta = 1/100;
 % Portfolio I: Minimum Variance Portfolio
 % Portfolio L: Max Sharpe Ratio
@@ -127,7 +127,7 @@ view2.delta = 1/100;
                     caps,...
                     names,...
                     [view1, view2],...
-                    risk_free_rate);
+                    0);
 
 
 
