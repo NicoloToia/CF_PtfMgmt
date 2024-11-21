@@ -64,30 +64,11 @@ portfolio_n_SR = (portfolio_n_return - risk_free_rate) / portfolio_n_std;
 disp('==============================================================================================')
 disp('Maximum Diversified Portfolio (Portfolio M)')
 disp('==============================================================================================')
-disp('Asset Name                Weight')
-disp('-------------------------------------------')
-for i = 1:length(weights_m)
-    fprintf('%-25s %.4f\n', names{i}, weights_m(i));
-end
-disp('-------------------------------------------')
-fprintf('%-25s %.4f\n', 'Expected Return', portfolio_m_return);
-fprintf('%-25s %.4f\n', 'Volatility', portfolio_m_std);
-fprintf('%-25s %.4f\n', 'Sharpe Ratio', portfolio_m_SR);
-fprintf('%-25s %.4f\n', 'Sum of weights', sum(weights_m));
-disp('              ')
+print_portfolio(weights_m, names, portfolio_m_return, portfolio_m_std, portfolio_m_SR)
 
 % Display Portfolio N - Maximum Entropy Portfolio
 disp('==============================================================================================')
 disp('Maximum Entropy Portfolio (Portfolio N)')
 disp('==============================================================================================')
-disp('Asset Name                Weight')    
-disp('-------------------------------------------')
-for i = 1:length(weights_n)
-    fprintf('%-25s %.4f\n', names{i}, weights_n(i));
+print_portfolio(weights_n, names, portfolio_n_return, portfolio_n_std, portfolio_n_SR)
 end
-disp('-------------------------------------------')
-fprintf('%-25s %.4f\n', 'Expected Return', portfolio_n_return);
-fprintf('%-25s %.4f\n', 'Volatility', portfolio_n_std);
-fprintf('%-25s %.4f\n', 'Sharpe Ratio', portfolio_n_SR);
-fprintf('%-25s %.4f\n', 'Sum of weights', sum(weights_n));
-disp('              ')

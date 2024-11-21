@@ -85,62 +85,22 @@ maxSharpeRisk_P2_Rsim = pf_risk_2(idx_maxSharpe_P2);
 disp('==============================================================================================')
 disp('Minimum Risk Portfolio with Resampling (Portfolio E)')
 disp('==============================================================================================')
-disp('Asset Name                Weight')
-disp('-------------------------------------------')
-for i = 1:length(minRiskWgt_P1_Rsim)
-    fprintf('%-25s %.4f\n', names{i}, minRiskWgt_P1_Rsim(i));
-end
-disp('-------------------------------------------')
-fprintf('%-25s %.4f\n', 'Expected Return', minRiskRet_P1_Rsim);
-fprintf('%-25s %.4f\n', 'Volatility', minRisk_P1_Rsim);
-fprintf('%-25s %.4f\n', 'Sharpe Ratio', minRiskSR_P1_Rsim);
-fprintf('%-25s %.4f\n', 'Sum of weights', sum(minRiskWgt_P1_Rsim));
-disp('              ')
-
+print_portfolio(minRiskWgt_P1_Rsim, names, minRiskRet_P1_Rsim, minRisk_P1_Rsim, minRiskSR_P1_Rsim)
 % Display Portfolio F - Minimum Variance Portfolio with resampling and constraints
 disp('==============================================================================================')
 disp('Minimum Risk Portfolio with Resampling and Constraints (Portfolio F)')
 disp('==============================================================================================')
-disp('Asset Name                Weight')
-disp('-------------------------------------------')
-for i = 1:length(minRiskWgt_P2_Rsim)
-    fprintf('%-25s %.4f\n', names{i}, minRiskWgt_P2_Rsim(i));
-end
-disp('-------------------------------------------')
-fprintf('%-25s %.4f\n', 'Expected Return', minRiskRet_P2_Rsim);
-fprintf('%-25s %.4f\n', 'Volatility', minRisk_P2_Rsim);
-fprintf('%-25s %.4f\n', 'Sharpe Ratio', minRiskSR_P2_Rsim);
-fprintf('%-25s %.4f\n', 'Sum of weights', sum(minRiskWgt_P2_Rsim));
-disp('              ')
+print_portfolio(minRiskWgt_P2_Rsim, names, minRiskRet_P2_Rsim, minRisk_P2_Rsim, minRiskSR_P2_Rsim)
 
 % Display Portfolio G - Maximum Sharpe Ratio Portfolio with resampling
 disp('==============================================================================================')
 disp('Maximum Sharpe Ratio Portfolio with Resampling (Portfolio G)')
 disp('==============================================================================================')
-disp('Asset Name                Weight')
-disp('-------------------------------------------')
-for i = 1:length(maxSharpeWgt_P1_Rsim)
-    fprintf('%-25s %.4f\n', names{i}, maxSharpeWgt_P1_Rsim(i));
-end
-disp('-------------------------------------------')
-fprintf('%-25s %.4f\n', 'Expected Return', maxSharpeRet_P1_Rsim);
-fprintf('%-25s %.4f\n', 'Volatility', maxSharpeRisk_P1_Rsim);
-fprintf('%-25s %.4f\n', 'Sharpe Ratio', maxSharpeSR_P1_Rsim);
-fprintf('%-25s %.4f\n', 'Sum of weights', sum(maxSharpeWgt_P1_Rsim));
-disp('                      ')
+print_portfolio(maxSharpeWgt_P1_Rsim, names, maxSharpeRet_P1_Rsim, maxSharpeRisk_P1_Rsim, maxSharpeSR_P1_Rsim)
 
 % Display Portfolio H - Maximum Sharpe Ratio Portfolio with resampling and constraints
 disp('==============================================================================================')
 disp('Maximum Sharpe Ratio Portfolio with Resampling and Constraints (Portfolio H)')
 disp('==============================================================================================')
-disp('Asset Name                Weight')
-disp('-------------------------------------------')
-for i = 1:length(maxSharpeWgt_P2_Rsim)
-    fprintf('%-25s %.4f\n', names{i}, maxSharpeWgt_P2_Rsim(i));
+print_portfolio(maxSharpeWgt_P2_Rsim, names, maxSharpeRet_P2_Rsim, maxSharpeRisk_P2_Rsim, maxSharpeSR_P2_Rsim)
 end
-disp('-------------------------------------------')
-fprintf('%-25s %.4f\n', 'Expected Return', maxSharpeRet_P2_Rsim);
-fprintf('%-25s %.4f\n', 'Volatility', maxSharpeRisk_P2_Rsim);
-fprintf('%-25s %.4f\n', 'Sharpe Ratio', maxSharpeSR_P2_Rsim);
-fprintf('%-25s %.4f\n', 'Sum of weights', sum(maxSharpeWgt_P2_Rsim));
-disp('          ')

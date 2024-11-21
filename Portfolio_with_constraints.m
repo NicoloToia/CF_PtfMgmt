@@ -74,30 +74,12 @@ maxSharpeSR_P2 = (maxSharpeRet_P2 - risk_free_rate) / maxSharpeRisk_P2;
 disp('===========================================================================')
 disp('Minimum Risk Portfolio with Constraints (Portfolio C)')
 disp('===========================================================================')
-disp('Asset Name                Weight')
-disp('-------------------------------------------')
-for i = 1:length(minRiskWgt_P2)
-    fprintf('%-25s %.4f\n', names{i}, minRiskWgt_P2(i));
-end
-disp('-------------------------------------------')
-fprintf('%-25s %.4f\n', 'Expected Return', minRiskRet_P2);
-fprintf('%-25s %.4f\n', 'Volatility', minRisk_P2);
-fprintf('%-25s %.4f\n', 'Sharpe Ratio', minRiskSR_P2);
-fprintf('%-25s %.4f\n', 'Sum of weights', sum(minRiskWgt_P2));
-disp('  ')
+print_portfolio(minRiskWgt_P2, names, minRiskRet_P2, minRisk_P2, minRiskSR_P2)
 
 % Display Portfolio D - Maximum Sharpe Ratio Portfolio with constraints
 disp('===========================================================================')
 disp('Maximum Sharpe Ratio Portfolio with Constraints (Portfolio D)')
 disp('===========================================================================')
-disp('Asset Name                Weight')
-disp('-------------------------------------------')
-for i = 1:length(maxSharpeWgt_P2)
-    fprintf('%-25s %.4f\n', names{i}, maxSharpeWgt_P2(i));
+print_portfolio(maxSharpeWgt_P2, names, maxSharpeRet_P2, maxSharpeRisk_P2, maxSharpeSR_P2)
+
 end
-disp('-------------------------------------------')
-fprintf('%-25s %.4f\n', 'Expected Return', maxSharpeRet_P2);
-fprintf('%-25s %.4f\n', 'Volatility', maxSharpeRisk_P2);
-fprintf('%-25s %.4f\n', 'Sharpe Ratio', maxSharpeSR_P2);
-fprintf('%-25s %.4f\n', 'Sum of weights', sum(maxSharpeWgt_P2));
-disp('  ')

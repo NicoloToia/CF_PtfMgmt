@@ -24,14 +24,4 @@ maxSharpeSR_P1 = (maxSharpeRet_P1 - risk_free_rate) / maxSharpeRisk_P1;
 disp('===========================================================================')
 disp(' Maximum Sharpe Ratio Portfolio (Portfolio B)')
 disp('===========================================================================')
-disp('Asset Name                Weight')
-disp('-------------------------------------------')
-for i = 1:length(maxSharpeWgt_P1)
-    fprintf('%-25s %.4f\n', names{i}, maxSharpeWgt_P1(i));
-end
-disp('-------------------------------------------')
-fprintf('%-25s %.4f\n', 'Expected Return', maxSharpeRet_P1);
-fprintf('%-25s %.4f\n', 'Volatility', maxSharpeRisk_P1);
-fprintf('%-25s %.4f\n', 'Sharpe Ratio', maxSharpeSR_P1);
-fprintf('%-25s %.4f\n', 'Sum of weights', sum(maxSharpeWgt_P1));
-disp('  ')
+print_portfolio(maxSharpeWgt_P1, names, maxSharpeRet_P1, maxSharpeRisk_P1, maxSharpeSR_P1)

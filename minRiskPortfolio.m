@@ -24,14 +24,5 @@ minRiskSR_P1 = (minRiskRet_P1 - risk_free_rate) / minRisk_P1;
 disp('===========================================================================')
 disp('    Minimum Risk Portfolio (Portfolio A)   ')
 disp('===========================================================================')
-disp('Asset Name                Weight')
-disp('-------------------------------------------')
-for i = 1:length(minRiskWgt_P1)
-    fprintf('%-25s %.4f\n', names{i}, minRiskWgt_P1(i));
+print_portfolio(minRiskWgt_P1, names, minRiskRet_P1, minRisk_P1, minRiskSR_P1)
 end
-disp('-------------------------------------------')
-fprintf('%-25s %.4f\n', 'Expected Return', minRiskRet_P1);
-fprintf('%-25s %.4f\n', 'Volatility', minRisk_P1);
-fprintf('%-25s %.4f\n', 'Sharpe Ratio', minRiskSR_P1);
-fprintf('%-25s %.4f\n', 'Sum of weights', sum(minRiskWgt_P1));
-disp('  ')
