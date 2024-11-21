@@ -130,6 +130,8 @@ view2.delta = 1/100;
                     risk_free_rate);
 
 
+
+
 %% 5.  Compute the Maximum Diversified Portfolio and the Maximum Entropy (in asset volatility) Portfolio
 
 % Portfolio M: Maximum Diversified Portfolio

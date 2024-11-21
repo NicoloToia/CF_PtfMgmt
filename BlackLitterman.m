@@ -42,6 +42,7 @@ covBL = inv(P'*inv(Omega)*P + inv(cov_market));
 % Create Portfolio for Black & Litterman
 ptf = Portfolio('NumAssets', num_assets, 'Name', 'MV with BL');
 ptf = setDefaultConstraints(ptf);
+ptf.RiskFreeRate = rf;
 ptf = setAssetMoments(ptf, muBL, cov_matrix + covBL);
 % Estimate Frontier
 pwBL = estimateFrontier(ptf, 100);
