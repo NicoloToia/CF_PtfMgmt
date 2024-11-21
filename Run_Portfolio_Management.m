@@ -18,8 +18,7 @@ rng(42); % For reproducibility
 % start timer
 tic
 
-% Add path to functions
-
+flag_plot = 0;
 %% PART A 
 
 % Load data from Excel files
@@ -61,6 +60,10 @@ num_assets = length(mean_returns);
 
 % Define the risk-free rate (annual, assuming 4% risk-free rate)
 risk_free_rate = 0.04 / 365; % Convert to daily (365 is correct)
+
+if flag_plot == 1
+    plotData(returns_2023,prices_2023, names);
+end
 % DA AGGIUNGERE DISPLAY DI EDO
 %% 1. Efficient Frontier
 
