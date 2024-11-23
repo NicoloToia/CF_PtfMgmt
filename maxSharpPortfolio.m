@@ -1,7 +1,5 @@
-function [P1,maxSharpeRisk_P1, maxSharpeWgt_P1, maxSharpeRet_P1, maxSharpeSR_P1] = maxSharpPortfolio(names, mean_returns, cov_matrix, risk_free_rate)
-%   Compute the efficient frontier under the standard constraints.
-%   Compute the Minimum Variance Portfolio, named Portfolio A, and the Maximum Sharpe 
-%   Ratio Portfolio, named Portfolio B, of the frontier.
+function [P1,maxSharpeRisk_P1, maxSharpeWgt_P1, maxSharpeRet_P1, maxSharpeSR_P1] = ...
+    maxSharpPortfolio(names, mean_returns, cov_matrix, risk_free_rate,const)
 
 % Create a portfolio object
 P1 = Portfolio('AssetList', names);

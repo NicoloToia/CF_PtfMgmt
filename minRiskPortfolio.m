@@ -1,12 +1,13 @@
-function [P1,minRisk_P1, minRiskWgt_P1, minRiskRet_P1, minRiskSR_P1] = minRiskPortfolio(names, mean_returns, cov_matrix, risk_free_rate)
-%   Compute the efficient frontier under the standard constraints.
-%   Compute the Minimum Variance Portfolio, named Portfolio A, and the Maximum Sharpe 
-%   Ratio Portfolio, named Portfolio B, of the frontier.
+function [P1,minRisk_P1, minRiskWgt_P1, minRiskRet_P1, minRiskSR_P1] = ...
+    minRiskPortfolio(names, mean_returns, cov_matrix, risk_free_rate , const)
 
 % Create a portfolio object
 P1 = Portfolio('AssetList', names);
 P1 = setDefaultConstraints(P1); % all weights sum to 1, no shorting, and 100% investment in risky assets
 P1 = setAssetMoments(P1, mean_returns, cov_matrix); % set mean returns and covariance matrix
+
+P1.AInequality = const.Aineq;
+P1.bInequality = const.bineq;
 % estimate efficient frontier, via object method and 100 P1oints
 pwgt1 = estimateFrontier(P1, 100);
 % estimate portfolio moments

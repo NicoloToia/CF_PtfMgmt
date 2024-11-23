@@ -64,14 +64,24 @@ risk_free_rate = 0.04 / 365; % Convert to daily (365 is correct)
 if flag_plot == 1
     plotData(returns_2023,prices_2023, names);
 end
-% DA AGGIUNGERE DISPLAY DI EDO
+
+const = struct();
+
 %% 1. Efficient Frontier
 
+%   Compute the efficient frontier under the standard constraints.
+%   Compute the Minimum Variance Portfolio, named Portfolio A, and the Maximum Sharpe 
+%   Ratio Portfolio, named Portfolio B, of the frontier.
+
+% set constraints
+const.Aineq = [];
+const.bineq = [];
+
 % Portfolio A: Minimum Variance Portfolio
-[~,minRisk_P1, minRiskWgt_P1, minRiskRet_P1, minRiskSR_P1] = minRiskPortfolio(names, mean_returns, cov_matrix, risk_free_rate);
+[~,minRisk_P1, minRiskWgt_P1, minRiskRet_P1, minRiskSR_P1] = minRiskPortfolio(names, mean_returns, cov_matrix, risk_free_rate,const);
 
 % Portfolio B: Maximum Sharpe Ratio Portfolio
-[P1,maxSharpeRisk_P1, maxSharpeWgt_P1, maxSharpeRet_P1, maxSharpeSR_P1] = maxSharpPortfolio(names, mean_returns, cov_matrix, risk_free_rate);
+[P1,maxSharpeRisk_P1, maxSharpeWgt_P1, maxSharpeRet_P1, maxSharpeSR_P1] = maxSharpPortfolio(names, mean_returns, cov_matrix, risk_free_rate,const);
 
 %% market structure
 
@@ -88,12 +98,44 @@ mkt.factor = ["Momentum", "Value", "Growth", "Quality", "LowVolatility"];
 
 %% 2. Efficient Frontier with additional constraints
 
+%  Compute the efficient frontier under the following constraints (to be
+%  considered all at once):
+%  • Standard constraints,
+%  • The total exposure to sensible sectors has to be greater than 10%
+%  and the total exposure on cyclical sectors has to be lower than
+%  30%,
+%  • The weights of the sector Consumer Staples and the factor
+%  Low Volatility have to be set equal to 0,
+%  • The maximum exposure on sectors has to be lower than 80%.
+%  Compute the Minimum Variance Portfolio, named Portfolio C, and the
+%  Maximum Sharpe Ratio Portfolio, named Portfolio D, of the frontier.
+
+% set constraints
+P2 = Portfolio('AssetList', names);
+sectors = [mkt.sector.sensible, mkt.sector.cyclical, mkt.sector.defensive];
+
+sensibleIdx = ismember(P2.AssetList, mkt.sector.sensible);
+cyclicalIdx = ismember(P2.AssetList, mkt.sector.cyclical);
+excludeIdx_CS = ismember(P2.AssetList, "ConsumerStaples");
+excludeIdx_LV = ismember(P2.AssetList, "LowVolatility");
+sectorIdx = ismember(P2.AssetList, sectors);
+
+const.Aineq = [
+    -sensibleIdx;
+    cyclicalIdx;
+    excludeIdx_CS;
+    excludeIdx_LV;
+    sectorIdx;
+];
+
+const.bineq = [-0.1; 0.3; 0; 0; 0.8];
+
 % Portfolio C and D: Minimum Variance Portfolio and Maximum Sharpe Ratio Portfolio with constraints
-[P2 , minRisk_P2, minRiskWgt_P2,...
-    minRiskRet_P2, minRiskSR_P2,...
-        maxSharpeWgt_P2, maxSharpeRet_P2,...
-            maxSharpeRisk_P2, maxSharpeSR_P2] = ...
-             Portfolio_with_constraints(mean_returns,cov_matrix, names, risk_free_rate,mkt);
+[~,minRisk_P2, minRiskWgt_P2, minRiskRet_P2, minRiskSR_P2] = ...
+    minRiskPortfolio(names, mean_returns, cov_matrix, risk_free_rate,const);
+
+[P2,maxSharpeRisk_P2, maxSharpeWgt_P2, maxSharpeRet_P2, maxSharpeSR_P2] = ...
+    maxSharpPortfolio(names, mean_returns, cov_matrix, risk_free_rate,const);
 
 
 %% 3. Efficient Frontier and Resampling Method
@@ -103,8 +145,8 @@ mkt.factor = ["Momentum", "Value", "Growth", "Quality", "LowVolatility"];
 [minRisk_P1_Rsim, minRiskWgt_P1_Rsim, minRiskRet_P1_Rsim, minRiskSR_P1_Rsim, ...
     minRisk_P2_Rsim, minRiskWgt_P2_Rsim, minRiskRet_P2_Rsim, minRiskSR_P2_Rsim, ...
         maxSharpeSR_P1_Rsim, maxSharpeWgt_P1_Rsim, maxSharpeRet_P1_Rsim, maxSharpeRisk_P1_Rsim, ...
-        maxSharpeSR_P2_Rsim, maxSharpeWgt_P2_Rsim, maxSharpeRet_P2_Rsim, maxSharpeRisk_P2_Rsim] = ...
-     resampling_method(mean_returns, cov_matrix, P1, P2, risk_free_rate,num_assets,names);
+            maxSharpeSR_P2_Rsim, maxSharpeWgt_P2_Rsim, maxSharpeRet_P2_Rsim, maxSharpeRisk_P2_Rsim] = ...
+                resampling_method(mean_returns, cov_matrix, P1, P2, risk_free_rate,num_assets,names);
 
 %% 4. Black-Litterman Model
 % View 1: Information Technology - Financials = 2%
@@ -126,14 +168,11 @@ view2.delta = 1/100;
 % Portfolio L: Max Sharpe Ratio
 [weights_i, portfolio_i_return, portfolio_i_std, portfolio_i_SR, ...
     weights_l, portfolio_l_return, portfolio_l_std, portfolio_l_SR] = ...
-    BlackLitterman( prices_2023,...
-                    caps,...
-                    names,...
-                    [view1, view2],...
-                    0);
-
-
-
+        BlackLitterman( prices_2023,...
+                        caps,...
+                        names,...
+                        [view1, view2],...
+                        0);
 
 %% 5.  Compute the Maximum Diversified Portfolio and the Maximum Entropy (in asset volatility) Portfolio
 
