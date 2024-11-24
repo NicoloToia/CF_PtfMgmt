@@ -1,5 +1,4 @@
-function [wMVP, retMVP, stdMVP, srMVP, ...
-    wMSR, retMSR, stdMSR, srMSR] = ...
+function [ptfMVP, ptfMSR] = ...
     BlackLitterman( prices,...
                     caps,...
                     names,...
@@ -57,5 +56,18 @@ srMVP = (retMVP - rf)/stdMVP;
 wMSR = estimateMaxSharpeRatio(ptf);
 [stdMSR, retMSR] = estimatePortMoments(ptf, wMSR);
 srMSR = (retMSR - rf)/stdMSR;
+
+ptfMVP = struct();
+ptfMVP.w = wMVP;
+ptfMVP.ret = retMVP;
+ptfMVP.std = stdMVP;
+ptfMVP.sr = srMVP;
+
+ptfMSR = struct();
+ptfMSR.w = wMSR;
+ptfMSR.ret = retMSR;
+ptfMSR.std = stdMSR;
+ptfMSR.sr = srMSR;
+
 end
 

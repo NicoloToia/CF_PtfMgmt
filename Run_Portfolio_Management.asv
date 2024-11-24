@@ -166,7 +166,8 @@ view2.underperformer = "LowVolatility";
 view2.delta = 1/100;
 % Portfolio I: Minimum Variance Portfolio
 % Portfolio L: Max Sharpe Ratio
-[ptf_I, ptf_L] = ...
+[ptf_I, ...
+    ptf_L] = ...
         BlackLitterman( prices_2023,...
                         caps,...
                         names,...
@@ -192,8 +193,8 @@ weights_E = array2table(minRiskWgt_P1_Rsim, 'RowNames', names, 'VariableNames', 
 weights_F = array2table(minRiskWgt_P2_Rsim, 'RowNames', names, 'VariableNames', {'Portfolio_F'});
 weights_G = array2table(maxSharpeWgt_P1_Rsim, 'RowNames', names, 'VariableNames', {'Portfolio_G'});
 weights_H = array2table(maxSharpeWgt_P2_Rsim, 'RowNames', names, 'VariableNames', {'Portfolio_H'});
-weights_I = array2table(ptf_I.w, 'RowNames', names, 'VariableNames', {'Portfolio_I'});
-weights_L = array2table(ptf_L.w, 'RowNames', names, 'VariableNames', {'Portfolio_L'});
+weights_I = array2table(ptf_L.w, 'RowNames', names, 'VariableNames', {'Portfolio_I'});
+weights_L = array2table(ptf_I.w, 'RowNames', names, 'VariableNames', {'Portfolio_L'});
 weights_M = array2table(weights_m, 'RowNames', names, 'VariableNames', {'Portfolio_M'});
 weights_N = array2table(weights_n, 'RowNames', names, 'VariableNames', {'Portfolio_N'});
 
