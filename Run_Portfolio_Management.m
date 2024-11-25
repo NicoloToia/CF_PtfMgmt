@@ -73,15 +73,17 @@ const = struct();
 %   Compute the Minimum Variance Portfolio, named Portfolio A, and the Maximum Sharpe 
 %   Ratio Portfolio, named Portfolio B, of the frontier.
 
+flag_constarints = 0;
+
 % set constraints
 const.Aineq = [];
 const.bineq = [];
 
 % Portfolio A: Minimum Variance Portfolio
-[~,minRisk_P1, minRiskWgt_P1, minRiskRet_P1, minRiskSR_P1] = minRiskPortfolio(names, mean_returns, cov_matrix, risk_free_rate,const);
+[~,minRisk_P1, minRiskWgt_P1, minRiskRet_P1, minRiskSR_P1] = minRiskPortfolio(names, mean_returns, cov_matrix, risk_free_rate,const,flag_constarints);
 
 % Portfolio B: Maximum Sharpe Ratio Portfolio
-[P1,maxSharpeRisk_P1, maxSharpeWgt_P1, maxSharpeRet_P1, maxSharpeSR_P1] = maxSharpPortfolio(names, mean_returns, cov_matrix, risk_free_rate,const);
+[P1,maxSharpeRisk_P1, maxSharpeWgt_P1, maxSharpeRet_P1, maxSharpeSR_P1] = maxSharpPortfolio(names, mean_returns, cov_matrix, risk_free_rate,const,flag_constarints);
 
 %% market structure
 
@@ -94,6 +96,15 @@ mkt.sector.defensive = ["ConsumerStaples", "Utilities", "HealthCare"];
 mkt.sector.sensible = ["Energy", "InformationTechnology", "CommunicationServices"];
 % Define factors
 mkt.factor = ["Momentum", "Value", "Growth", "Quality", "LowVolatility"];
+
+P = Portfolio('AssetList', names);
+sectors = [mkt.sector.sensible, mkt.sector.cyclical, mkt.sector.defensive];
+
+sensibleIdx = ismember(P.AssetList, mkt.sector.sensible);
+cyclicalIdx = ismember(P.AssetList, mkt.sector.cyclical);
+excludeIdx_CS = ismember(P.AssetList, "ConsumerStaples");
+excludeIdx_LV = ismember(P.AssetList, "LowVolatility");
+sectorIdx = ismember(P.AssetList, sectors);
 
 
 %% 2. Efficient Frontier with additional constraints
@@ -110,16 +121,9 @@ mkt.factor = ["Momentum", "Value", "Growth", "Quality", "LowVolatility"];
 %  Compute the Minimum Variance Portfolio, named Portfolio C, and the
 %  Maximum Sharpe Ratio Portfolio, named Portfolio D, of the frontier.
 
+flag_constarints = 1;
+
 % set constraints
-P2 = Portfolio('AssetList', names);
-sectors = [mkt.sector.sensible, mkt.sector.cyclical, mkt.sector.defensive];
-
-sensibleIdx = ismember(P2.AssetList, mkt.sector.sensible);
-cyclicalIdx = ismember(P2.AssetList, mkt.sector.cyclical);
-excludeIdx_CS = ismember(P2.AssetList, "ConsumerStaples");
-excludeIdx_LV = ismember(P2.AssetList, "LowVolatility");
-sectorIdx = ismember(P2.AssetList, sectors);
-
 const.Aineq = [
     -sensibleIdx;
     cyclicalIdx;
@@ -132,16 +136,15 @@ const.bineq = [-0.1; 0.3; 0; 0; 0.8];
 
 % Portfolio C and D: Minimum Variance Portfolio and Maximum Sharpe Ratio Portfolio with constraints
 [~,minRisk_P2, minRiskWgt_P2, minRiskRet_P2, minRiskSR_P2] = ...
-    minRiskPortfolio(names, mean_returns, cov_matrix, risk_free_rate,const);
+    minRiskPortfolio(names, mean_returns, cov_matrix, risk_free_rate,const,flag_constarints);
 
 [P2,maxSharpeRisk_P2, maxSharpeWgt_P2, maxSharpeRet_P2, maxSharpeSR_P2] = ...
-    maxSharpPortfolio(names, mean_returns, cov_matrix, risk_free_rate,const);
+    maxSharpPortfolio(names, mean_returns, cov_matrix, risk_free_rate,const,flag_constarints);
 
 
 %% 3. Efficient Frontier and Resampling Method
 
 % Portfolio E and F: Minimum Variance Portfolio with resampling
-
 [minRisk_P1_Rsim, minRiskWgt_P1_Rsim, minRiskRet_P1_Rsim, minRiskSR_P1_Rsim, ...
     minRisk_P2_Rsim, minRiskWgt_P2_Rsim, minRiskRet_P2_Rsim, minRiskSR_P2_Rsim, ...
         maxSharpeSR_P1_Rsim, maxSharpeWgt_P1_Rsim, maxSharpeRet_P1_Rsim, maxSharpeRisk_P1_Rsim, ...
@@ -175,11 +178,33 @@ view2.delta = 1/100;
 
 %% 5.  Compute the Maximum Diversified Portfolio and the Maximum Entropy (in asset volatility) Portfolio
 
+% Set default constraints for the portfolio: weights sum to 1
+    % and there are no short positions (non-negative weights)
+    const.lb = zeros(num_assets, 1);  % Lower bounds on weights
+    const.ub = ones(num_assets, 1);   % Upper bounds on weights
+    const.Aeq = ones(1, num_assets);  % Equality constraint for sum of weights
+    const.beq = 1;
+
+    % Additional constraints for sectors:
+    % Cyclical sectors total weight >= 20%
+    const.A = -cyclicalIdx;
+    const.b = -0.2;
+
+ % Weights of the benchmark portfolio (capitalization weighted portfolio)
+ cap_wghtd_ptf = capitalizations{1, names} / sum(capitalizations{1, names});
+
+ const.nonlinconstr =  @(weights) customAbsDiffConstraint(weights, cap_wghtd_ptf); % Non linear constraint function
+
+
+
 % Portfolio M: Maximum Diversified Portfolio
+[weights_m, portfolio_m_return, portfolio_m_std, portfolio_m_SR] = ...
+          Max_Diversified_Portfolio(mean_returns, cov_matrix, capitalizations, names, risk_free_rate, mkt, P2,num_assets,const);
+
 % Portfolio N: Maximum Entropy Portfolio
-[weights_m, portfolio_m_return, portfolio_m_std, portfolio_m_SR, ...
-    weights_n, portfolio_n_return, portfolio_n_std, portfolio_n_SR] = ...
-    Diversified_and_Entropy_Portfolio(mean_returns, cov_matrix, capitalizations, names, risk_free_rate,mkt,P2,num_assets);
+[weights_n, portfolio_n_return, portfolio_n_std, portfolio_n_SR] = ...
+    Max_Entropy_Portfolio(mean_returns, cov_matrix, capitalizations, names, risk_free_rate, mkt, P2,num_assets,const);
+
 
 %% Output carino dei portafogli insieme 
 
