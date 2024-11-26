@@ -1,10 +1,18 @@
 function [] =  print_portfolio(weights,names,returns,risk,SR,flag) 
+    % Print the portfolio weights, expected return, volatility, and Sharpe ratio
+    % for the given portfolio.
+    %
+    % INPUTS:
+    % weights: a vector of portfolio weights
+    % names: a cell array of asset names
+    % returns: the expected return of the portfolio
+    % risk: the volatility of the portfolio
+    % SR: the Sharpe ratio of the portfolio
+    % flag: a string to identify the portfolio  
 
-    
-
-    disp('===========================================================================')
+    disp('===========================================')
     fprintf(' Portfolio %s\n', flag)
-    disp('===========================================================================')
+    disp('===========================================')
 
     disp('Asset Name                Weight')
     disp('-------------------------------------------')

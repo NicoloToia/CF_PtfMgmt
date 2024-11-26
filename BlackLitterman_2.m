@@ -88,4 +88,8 @@ function [ptfMVP, ptfMSR] = ...
     ptfMSR.std = stdMSR;
     ptfMSR.sr = srMSR;
 
+
+    print_portfolio(wMVP, names, retMVP,stdMSR,srMSR,'I');
+    print_portfolio(wMSR, names, retMSR,stdMSR,srMSR,'L');
+
 end

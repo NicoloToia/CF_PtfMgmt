@@ -2,8 +2,15 @@ function [equities,metricesTable] = getEquityandMetrices(   Ws,...
                                                             prices,...
                                                             ptfNames,...
                                                             Title)
-%UNTITLED Summary of this function goes here
-%   Detailed explanation goes here
+
+% GETEQUITYANDMETRICES plots the equity of the portfolios
+%
+% INPUTS:
+% Ws: weights of the portfolios
+% prices: prices of the assets
+% ptfNames: names of the portfolios
+% Title: title of the plot
+
 numPtfs = size(Ws,2);
 ret = prices(2:end, :) ./ prices(1:end-1,:);
 equities = zeros(size(ret,1), numPtfs);

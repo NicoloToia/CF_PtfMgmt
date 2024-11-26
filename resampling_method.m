@@ -98,7 +98,7 @@ function [minRisk_P1_Rsim, minRiskWgt_P1_Rsim, minRiskRet_P1_Rsim, minRiskSR_P1_
     print_portfolio(minRiskWgt_P2_Rsim, names, minRiskRet_P2_Rsim, minRisk_P2_Rsim, minRiskSR_P2_Rsim,'F')
 
     % Display Portfolio G - Maximum Sharpe Ratio Portfolio with resampling
-    print_portfolio(maxSharpeWgt_P1_Rsim, names, maxSharpeRet_P1_Rsim, maxSharpeRisk_P1_Rsim, maxSharpeSR_P1_Rsm,'G')
+    print_portfolio(maxSharpeWgt_P1_Rsim, names, maxSharpeRet_P1_Rsim, maxSharpeRisk_P1_Rsim, maxSharpeSR_P1_Rsim,'G')
 
     % Display Portfolio H - Maximum Sharpe Ratio Portfolio with resampling and constraints
     print_portfolio(maxSharpeWgt_P2_Rsim, names, maxSharpeRet_P2_Rsim, maxSharpeRisk_P2_Rsim, maxSharpeSR_P2_Rsim,'H')
