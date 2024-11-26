@@ -36,13 +36,8 @@ function [P1,maxSharpeRisk_P1, maxSharpeWgt_P1, maxSharpeRet_P1, maxSharpeSR_P1]
 
     % Display Portfolio B or D - Maximum Sharpe Ratio Portfolio
     if flag == 0
-        disp('===========================================================================')
-        disp(' Maximum Sharpe Ratio Portfolio (Portfolio B)')
-        disp('===========================================================================')
+        print_portfolio(maxSharpeWgt_P1, names, maxSharpeRet_P1, maxSharpeRisk_P1, maxSharpeSR_P1,'B')
     elseif flag == 1
-        disp('===========================================================================')
-        disp(' Maximum Sharpe Ratio Portfolio (Portfolio D)')
-        disp('===========================================================================')
+        print_portfolio(maxSharpeWgt_P1, names, maxSharpeRet_P1, maxSharpeRisk_P1, maxSharpeSR_P1,'D')
     end
-    print_portfolio(maxSharpeWgt_P1, names, maxSharpeRet_P1, maxSharpeRisk_P1, maxSharpeSR_P1)
 end

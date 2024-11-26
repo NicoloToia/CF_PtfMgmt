@@ -89,4 +89,3 @@ function [ptfMVP, ptfMSR] = ...
     ptfMSR.sr = srMSR;
 
 end
-

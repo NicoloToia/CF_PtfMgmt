@@ -29,17 +29,10 @@ function [P1,minRisk_P1, minRiskWgt_P1, minRiskRet_P1, minRiskSR_P1] = ...
     minRiskRet_P1 = mean_returns' * minRiskWgt_P1;
     minRiskSR_P1 = (minRiskRet_P1 - risk_free_rate) / minRisk_P1;
 
-
-
-    % Display Portfolio A or C - Minimum Variance Portfolio
     if flag == 0
-        disp('===========================================================================')
-        disp(' Maximum Sharpe Ratio Portfolio (Portfolio A)')
-        disp('===========================================================================')
+        print_portfolio(minRiskWgt_P1, names, minRiskRet_P1, minRisk_P1, minRiskSR_P1,'A')
     elseif flag == 1
-        disp('===========================================================================')
-        disp(' Maximum Sharpe Ratio Portfolio (Portfolio C)')
-        disp('===========================================================================')
+        print_portfolio(minRiskWgt_P1, names, minRiskRet_P1, minRisk_P1, minRiskSR_P1,'C')
     end
-    print_portfolio(minRiskWgt_P1, names, minRiskRet_P1, minRisk_P1, minRiskSR_P1)
+
 end

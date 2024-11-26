@@ -45,8 +45,6 @@ function [weights_n, portfolio_n_return, portfolio_n_std, portfolio_n_SR] = ...
         portfolio_n_SR = (portfolio_n_return - risk_free_rate) / portfolio_n_std;
 
         % Display Portfolio N - Maximum Entropy Portfolio
-        disp('==============================================================================================')
-        disp('Maximum Entropy Portfolio (Portfolio N)')
-        disp('==============================================================================================')
-        print_portfolio(weights_n, names, portfolio_n_return, portfolio_n_std, portfolio_n_SR)
+
+        print_portfolio(weights_n, names, portfolio_n_return, portfolio_n_std, portfolio_n_SR,'N')
 end

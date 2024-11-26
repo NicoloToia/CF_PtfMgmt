@@ -46,8 +46,5 @@ function [weights_m, portfolio_m_return, portfolio_m_std, portfolio_m_SR] = ...
         portfolio_m_SR = (portfolio_m_return - risk_free_rate) / portfolio_m_std;
 
         % Display Portfolio M - Maximum Diversified Portfolio
-        disp('==============================================================================================')
-        disp('Maximum Diversified Portfolio (Portfolio M)')
-        disp('==============================================================================================')
-        print_portfolio(weights_m, names, portfolio_m_return, portfolio_m_std, portfolio_m_SR)
+        print_portfolio(weights_m, names, portfolio_m_return, portfolio_m_std, portfolio_m_SR,'M')
 end

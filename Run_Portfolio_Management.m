@@ -73,17 +73,19 @@ const = struct();
 %   Compute the Minimum Variance Portfolio, named Portfolio A, and the Maximum Sharpe 
 %   Ratio Portfolio, named Portfolio B, of the frontier.
 
-flag_constarints = 0;
+flag_constraints = 0;
 
 % set constraints
 const.Aineq = [];
 const.bineq = [];
 
 % Portfolio A: Minimum Variance Portfolio
-[~,minRisk_P1, minRiskWgt_P1, minRiskRet_P1, minRiskSR_P1] = minRiskPortfolio(names, mean_returns, cov_matrix, risk_free_rate,const,flag_constarints);
+[~,minRisk_P1, minRiskWgt_P1, minRiskRet_P1, minRiskSR_P1] = ...
+minRiskPortfolio(names, mean_returns, cov_matrix, risk_free_rate,const,flag_constraints);
 
 % Portfolio B: Maximum Sharpe Ratio Portfolio
-[P1,maxSharpeRisk_P1, maxSharpeWgt_P1, maxSharpeRet_P1, maxSharpeSR_P1] = maxSharpPortfolio(names, mean_returns, cov_matrix, risk_free_rate,const,flag_constarints);
+[P1,maxSharpeRisk_P1, maxSharpeWgt_P1, maxSharpeRet_P1, maxSharpeSR_P1] = ...
+ maxSharpPortfolio(names, mean_returns, cov_matrix, risk_free_rate,const,flag_constraints);
 
 %% market structure
 
@@ -136,10 +138,10 @@ const.bineq = [-0.1; 0.3; 0; 0; 0.8];
 
 % Portfolio C and D: Minimum Variance Portfolio and Maximum Sharpe Ratio Portfolio with constraints
 [~,minRisk_P2, minRiskWgt_P2, minRiskRet_P2, minRiskSR_P2] = ...
-    minRiskPortfolio(names, mean_returns, cov_matrix, risk_free_rate,const,flag_constarints);
+    minRiskPortfolio(names, mean_returns, cov_matrix, risk_free_rate,const,flag_constraints);
 
 [P2,maxSharpeRisk_P2, maxSharpeWgt_P2, maxSharpeRet_P2, maxSharpeSR_P2] = ...
-    maxSharpPortfolio(names, mean_returns, cov_matrix, risk_free_rate,const,flag_constarints);
+    maxSharpPortfolio(names, mean_returns, cov_matrix, risk_free_rate,const,flag_constraints);
 
 
 %% 3. Efficient Frontier and Resampling Method
