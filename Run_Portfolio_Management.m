@@ -146,6 +146,11 @@ const.bineq = [-0.1; 0.3; 0; 0; 0.8];
 
 %% 3. Efficient Frontier and Resampling Method
 
+% Compute the frontiers in step 1 and 2 using the resampling method in
+%  order to obtain 2 robust frontier. For each frontier save the Minimum
+%  Variance Portfolios, named Portfolios E and F, and the Maximum
+%  Sharpe Ratio Portfolios, named Portfolios G and H, of the frontiers.
+
 % Portfolio E and F: Minimum Variance Portfolio with resampling
 [minRisk_P1_Rsim, minRiskWgt_P1_Rsim, minRiskRet_P1_Rsim, minRiskSR_P1_Rsim, ...
     minRisk_P2_Rsim, minRiskWgt_P2_Rsim, minRiskRet_P2_Rsim, minRiskSR_P2_Rsim, ...
@@ -154,6 +159,17 @@ const.bineq = [-0.1; 0.3; 0; 0; 0.8];
                 resampling_method(mean_returns, cov_matrix, P1, P2, risk_free_rate,num_assets,names);
 
 %% 4. Black-Litterman Model
+
+% Compute the portfolio frontier, under standard constraints, using the
+% Black-Litterman model with the following views (to be considered all
+% at once):
+% • View on Technology vs. Financials: Given the growing im
+% portance of technology, you think that the Technology sector will
+% outperform the Financial sector of the 2% (annual).
+% • View on the Momentum vs. Low Volatility factor: You
+% might assume that Momentum will outperform Low Volatility in
+% a bull market scenario (annual overperformance of 1%)
+
 % View 1: Information Technology - Financials = 2%
 % View 2: Momentum - Volatility = 1%
 % Number of views
@@ -180,6 +196,16 @@ view2.delta = 1/100;
 
 %% 5.  Compute the Maximum Diversified Portfolio and the Maximum Entropy (in asset volatility) Portfolio
 
+% Compute the Maximum Diversified Portfolio (Portfolio M) and the
+% Maximum Entropy (in asset volatility) Portfolio (Portfolio N), under
+% the following constraints (to be considered all at once):
+% • Standard constraints,
+% • The total exposure on cyclicals has to be greater than 20%,
+% • Assuming that you have a benchmark portfolio (capitalization
+% weighted portfolio), the sum of the difference (in absolute value)
+% of the weights in the benchmark portfolio and the optimal weights
+% has to be greater than 20%
+
 % Set default constraints for the portfolio: weights sum to 1
     % and there are no short positions (non-negative weights)
     const.lb = zeros(num_assets, 1);  % Lower bounds on weights
@@ -197,8 +223,6 @@ view2.delta = 1/100;
 
  const.nonlinconstr =  @(weights) customAbsDiffConstraint(weights, cap_wghtd_ptf); % Non linear constraint function
 
-
-
 % Portfolio M: Maximum Diversified Portfolio
 [weights_m, portfolio_m_return, portfolio_m_std, portfolio_m_SR] = ...
           Max_Diversified_Portfolio(mean_returns, cov_matrix, capitalizations, names, risk_free_rate, mkt, P2,num_assets,const);
@@ -206,6 +230,24 @@ view2.delta = 1/100;
 % Portfolio N: Maximum Entropy Portfolio
 [weights_n, portfolio_n_return, portfolio_n_std, portfolio_n_SR] = ...
     Max_Entropy_Portfolio(mean_returns, cov_matrix, capitalizations, names, risk_free_rate, mkt, P2,num_assets,const);
+
+%% 6. 
+
+% Compute the portfolio (Portfolio P), using the Principal Component
+%  Analysis, that maximizes its expected return under the following con
+% straints (to be considered all at once):
+%  • Standard constraints,
+%  • Thevolatility of the portfolio has to be equal or less than a target
+%  volatility of σtgt = 0.1
+%  You have to use the minimum number of factors that explains more
+%  than the 90% of the cumulative variance.
+
+%% 7.
+
+% Compute the Portfolio that maximizes, under standard constraints,
+%  the VaR-modified Sharpe Ratio (i.e. the risk in the formula of Sharpe
+%  Ratio is the VaR), named Portfolio Q, using the Variance-Covariance
+%  method.
 
 
 %% Output carino dei portafogli insieme 
