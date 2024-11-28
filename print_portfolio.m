@@ -10,9 +10,9 @@ function [] =  print_portfolio(weights,names,returns,risk,SR,flag)
     % SR: the Sharpe ratio of the portfolio
     % flag: a string to identify the portfolio  
 
-    disp('===========================================')
-    fprintf(' Portfolio %s\n', flag)
-    disp('===========================================')
+    disp('=======================================================')
+    fprintf('%s\n', flag)
+    disp('=======================================================')
 
     disp('Asset Name                Weight')
     disp('-------------------------------------------')

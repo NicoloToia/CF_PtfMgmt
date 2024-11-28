@@ -2,7 +2,7 @@
 % Authors: 
 % Matteo Torba
 % Edoardo Pariani
-% Nicolo Toia
+% Nicolò Toia
 % Andrea Tarditi
 % Giacomo Manfredi
 %

@@ -89,7 +89,7 @@ function [ptfMVP, ptfMSR] = ...
     ptfMSR.sr = srMSR;
 
 
-    print_portfolio(wMVP, names, retMVP,stdMSR,srMSR,'I');
-    print_portfolio(wMSR, names, retMSR,stdMSR,srMSR,'L');
+    print_portfolio(wMVP, names, retMVP,stdMSR,srMSR,'Black Litterman Portfolio (I)');
+    print_portfolio(wMSR, names, retMSR,stdMSR,srMSR,'Black Litterman Portfolio (L)');
 
 end

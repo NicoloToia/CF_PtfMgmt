@@ -30,9 +30,9 @@ function [P1,minRisk_P1, minRiskWgt_P1, minRiskRet_P1, minRiskSR_P1] = ...
     minRiskSR_P1 = (minRiskRet_P1 - risk_free_rate) / minRisk_P1;
 
     if flag == 0
-        print_portfolio(minRiskWgt_P1, names, minRiskRet_P1, minRisk_P1, minRiskSR_P1,'A')
+        print_portfolio(minRiskWgt_P1, names, minRiskRet_P1, minRisk_P1, minRiskSR_P1,'Minimum Risk Portfolio (A)')
     elseif flag == 1
-        print_portfolio(minRiskWgt_P1, names, minRiskRet_P1, minRisk_P1, minRiskSR_P1,'C')
+        print_portfolio(minRiskWgt_P1, names, minRiskRet_P1, minRisk_P1, minRiskSR_P1,'Minimum risk Portfolio with constrints (C)')
     end
 
 end

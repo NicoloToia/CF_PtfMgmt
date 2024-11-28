@@ -46,5 +46,5 @@ function [weights_n, portfolio_n_return, portfolio_n_std, portfolio_n_SR] = ...
 
         % Display Portfolio N - Maximum Entropy Portfolio
 
-        print_portfolio(weights_n, names, portfolio_n_return, portfolio_n_std, portfolio_n_SR,'N')
+        print_portfolio(weights_n, names, portfolio_n_return, portfolio_n_std, portfolio_n_SR,'Max Entropy Portfolio (N)')
 end
