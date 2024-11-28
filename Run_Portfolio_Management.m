@@ -253,18 +253,18 @@ view2.delta = 1/100;
 %% Output carino dei portafogli insieme 
 
 % Combine the weights for each portfolio
-weights_A = array2table(minRiskWgt_P1, 'RowNames', names, 'VariableNames', {'Portfolio_A'});
-weights_B = array2table(maxSharpeWgt_P1, 'RowNames', names, 'VariableNames', {'Portfolio_B'});
-weights_C = array2table(minRiskWgt_P2, 'RowNames', names, 'VariableNames', {'Portfolio_C'});
-weights_D = array2table(maxSharpeWgt_P2, 'RowNames', names, 'VariableNames', {'Portfolio_D'});
-weights_E = array2table(minRiskWgt_P1_Rsim, 'RowNames', names, 'VariableNames', {'Portfolio_E'});
-weights_F = array2table(minRiskWgt_P2_Rsim, 'RowNames', names, 'VariableNames', {'Portfolio_F'});
-weights_G = array2table(maxSharpeWgt_P1_Rsim, 'RowNames', names, 'VariableNames', {'Portfolio_G'});
-weights_H = array2table(maxSharpeWgt_P2_Rsim, 'RowNames', names, 'VariableNames', {'Portfolio_H'});
-weights_I = array2table(ptf_I.w, 'RowNames', names, 'VariableNames', {'Portfolio_I'});
-weights_L = array2table(ptf_L.w, 'RowNames', names, 'VariableNames', {'Portfolio_L'});
-weights_M = array2table(weights_m, 'RowNames', names, 'VariableNames', {'Portfolio_M'});
-weights_N = array2table(weights_n, 'RowNames', names, 'VariableNames', {'Portfolio_N'});
+weights_A = array2table(minRiskWgt_P1, 'RowNames', names, 'VariableNames', {'Portfolio A'});
+weights_B = array2table(maxSharpeWgt_P1, 'RowNames', names, 'VariableNames', {'Portfolio B'});
+weights_C = array2table(minRiskWgt_P2, 'RowNames', names, 'VariableNames', {'Portfolio C'});
+weights_D = array2table(maxSharpeWgt_P2, 'RowNames', names, 'VariableNames', {'Portfolio D'});
+weights_E = array2table(minRiskWgt_P1_Rsim, 'RowNames', names, 'VariableNames', {'Portfolio E'});
+weights_F = array2table(minRiskWgt_P2_Rsim, 'RowNames', names, 'VariableNames', {'Portfolio F'});
+weights_G = array2table(maxSharpeWgt_P1_Rsim, 'RowNames', names, 'VariableNames', {'Portfolio G'});
+weights_H = array2table(maxSharpeWgt_P2_Rsim, 'RowNames', names, 'VariableNames', {'Portfolio H'});
+weights_I = array2table(ptf_I.w, 'RowNames', names, 'VariableNames', {'Portfolio I'});
+weights_L = array2table(ptf_L.w, 'RowNames', names, 'VariableNames', {'Portfolio L'});
+weights_M = array2table(weights_m, 'RowNames', names, 'VariableNames', {'Portfolio M'});
+weights_N = array2table(weights_n, 'RowNames', names, 'VariableNames', {'Portfolio N'});
 
 weightsTable = [weights_A, weights_B, weights_C, weights_D,...
                 weights_E, weights_F, weights_G, weights_H,...
@@ -283,9 +283,9 @@ metricsTable = table(...
     [ptf_L.ret; ptf_L.std; ptf_L.sr; sum(ptf_L.w)], ...
     [portfolio_m_return; portfolio_m_std; portfolio_m_SR; sum(weights_m)], ...
     [portfolio_n_return; portfolio_n_std; portfolio_n_SR; sum(weights_n)], ...
-    'VariableNames', {'Portfolio_A', 'Portfolio_B', 'Portfolio_C', 'Portfolio_D', ...
-                      'Portfolio_E', 'Portfolio_F', 'Portfolio_G', 'Portfolio_H', ...
-                      'Portfolio_I', 'Portfolio_L', 'Portfolio_M', 'Portfolio_N'}, ...
+    'VariableNames', {'Portfolio A', 'Portfolio B', 'Portfolio C', 'Portfolio D', ...
+                      'Portfolio E', 'Portfolio F', 'Portfolio G', 'Portfolio H', ...
+                      'Portfolio I', 'Portfolio L', 'Portfolio M', 'Portfolio N'}, ...
     'RowNames', {'Expected Return', 'Volatility', 'Sharpe Ratio', 'Sum of Weights'} ...
 );
 
@@ -300,6 +300,8 @@ disp('==========================================================================
 disp('                                    Portfolio Metrics Table                                   ')
 disp('==============================================================================================')
 disp(metricsTable)
+
+disp_pie_weights(weightsTable)
 
 % Display the time taken
 disp('==============================================================================================')
