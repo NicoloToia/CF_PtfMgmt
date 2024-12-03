@@ -55,12 +55,13 @@ function [minRisk_P1_Rsim, minRiskWgt_P1_Rsim, minRiskRet_P1_Rsim, minRiskSR_P1_
         Risk_P2_sim(:, n) = pf_risk_P2_sim;
         Weights_P2_sim(:,:,n) = w2_sim;
         
+        
     end
 
     pwgt_1 = mean(Weights_P1_sim, 3);
     pf_risk_1 = mean(Risk_P1_sim, 2);
     pf_Retn_1 = mean(Ret_P1_sim, 2);
-
+    
     pwgt_2 = mean(Weights_P2_sim, 3);
     pf_risk_2 = mean(Risk_P2_sim, 2);
     pf_Retn_2 = mean(Ret_P2_sim, 2);

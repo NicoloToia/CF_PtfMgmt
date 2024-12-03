@@ -99,7 +99,7 @@ P_2.bInequality = bineq;
 P_2.AEquality = Aeq;
 P_2.bEquality = beq;
 
-for n = 1:num_assets
+for n = 1:50
 
     R = mvnrnd(mean_returns, cov_matrix);
     New_mean_returns = R;

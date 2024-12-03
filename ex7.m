@@ -73,3 +73,6 @@ fprintf('%-25s %.4f\n', 'Sharpe Ratio', sharpe_ratio);
 fprintf('%-25s %.4f\n', 'Sum of weights', sum(optimized_weights));
 disp('  ')
 
+weightsTable = array2table(optimized_weights, "RowNames",names,...
+    "VariableNames",{'PTF'})
+
