@@ -1,11 +1,10 @@
-function Output_struct = resampling_method(Ptf, risk_free_rate, name_ptf, flag)
+function Output_struct = resampling_method(Ptf, name_ptf, flag)
    
     % This function estimates the minimum risk portfolio or the maximum Sharpe ratio portfolio
     % using the resampling method.
     %
     % INPUTS:
     % Ptf: portfolio object
-    % risk_free_rate: the risk-free rate
     % name_ptf: the name of the portfolio
     % flag: 0 for minimum risk portfolio, 1 for maximum Sharpe ratio portfolio
     %
@@ -58,7 +57,7 @@ function Output_struct = resampling_method(Ptf, risk_free_rate, name_ptf, flag)
         [minRisk_Rsim, idx_minRisk] = min(pf_risk);
         minRiskWgt_Rsim = pwgt(:, idx_minRisk);
         minRiskRet_Rsim = pf_Retn(idx_minRisk);
-        minRiskSR_Rsim = (minRiskRet_Rsim - risk_free_rate) / minRisk_Rsim;
+        minRiskSR_Rsim = (minRiskRet_Rsim - Ptf.RiskFreeRate) / minRisk_Rsim;
 
         % Display the minimum risk portfolio
         print_portfolio(minRiskWgt_Rsim, Ptf.AssetList, minRiskRet_Rsim, minRisk_Rsim, minRiskSR_Rsim, name_ptf);
@@ -72,7 +71,7 @@ function Output_struct = resampling_method(Ptf, risk_free_rate, name_ptf, flag)
     elseif flag == 1
 
         % Find the maximum Sharpe ratio portfolio (Maximum Sharpe Ratio Portfolio with resampling)
-        sharpeRatio_Rsim = (pf_Retn - risk_free_rate) ./ pf_risk;
+        sharpeRatio_Rsim = (pf_Retn - Ptf.RiskFreeRate) ./ pf_risk;
         [maxSharpeSR_Rsim, idx_maxSharpe] = max(sharpeRatio_Rsim);
         maxSharpeWgt_Rsim = pwgt(:, idx_maxSharpe);
         maxSharpeRet_Rsim = pf_Retn(idx_maxSharpe);
