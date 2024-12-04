@@ -1,35 +1,30 @@
-function [Ptf,minRisk_P1, minRiskWgt_P1, minRiskRet_P1, minRiskSR_P1] = ...
-    minRiskPortfolio(Ptf, risk_free_rate , const, name_ptf)
+function Output_struct = minRiskPortfolio(Ptf, risk_free_rate, pwgt, pf_risk_Ptf, name_ptf)
 
-    %   Compute the Minimum Variance Portfolio of the frontier.
+    % Compute the Minimum Variance Portfolio of the frontier.
     % INPUTS
-    % names: cell array of asset names
-    % mean_returns: vector of mean returns
-    % cov_matrix: covariance matrix
+    % Ptf: Portfolio object
     % risk_free_rate: risk free rate
-    % const: constraints struct 
+    % pwgt: the weights of the portfolios on the frontier
+    % pf_risk_Ptf: the volatility of the portfolios on the frontier
+    % name_ptf: name of the portfolio
+    %
+    % OUTPUTS
+    % Output_struct: a struct containing the volatility, weights, return, 
+    %                and Sharpe ratio of the minimum variance portfolio
 
+    % find minimum risk portfolio (Minimum Variance Portfolio)
+    minRisk_Ptf = min(pf_risk_Ptf);
+    minRiskWgt_Ptf = pwgt(:, pf_risk_Ptf == minRisk_Ptf);
+    minRiskRet_Ptf = Ptf.AssetMean' * minRiskWgt_Ptf;
+    minRiskSR_Ptf = (minRiskRet_Ptf - risk_free_rate) / minRisk_Ptf;
 
-    % estimate efficient frontier, via object method and 100 P1oints
-    pwgt1 = estimateFrontier(Ptf, 100);
-    % estimate portfolio moments
-    [pf_risk_P1, pf_Retn_P1] = estimatePortMoments(Ptf, pwgt1);
-    % plot efficient frontier
-    % plot(pf_risk_P1, pf_Retn_P1)
+    % Display the minimum risk portfolio
+    print_portfolio(minRiskWgt_Ptf, Ptf.AssetList, minRiskRet_Ptf, minRisk_Ptf, minRiskSR_Ptf, name_ptf);
 
-    % find minimum risk portfolio (Portfolio A or C - Minimum Variance Portfolio)
-    minRisk_P1 = min(pf_risk_P1);
-    minRiskWgt_P1 = pwgt1(:, pf_risk_P1 == minRisk_P1);
-    minRiskRet_P1 = mean_returns' * minRiskWgt_P1;
-    minRiskSR_P1 = (minRiskRet_P1 - risk_free_rate) / minRisk_P1;
-
-    print_portfolio(minRiskWgt_P1, names, minRiskRet_P1, minRisk_P1, minRiskSR_P1, name_ptf);
-
-
-    % if flag == 0
-    %     print_portfolio(minRiskWgt_P1, names, minRiskRet_P1, minRisk_P1, minRiskSR_P1,'Minimum Risk Portfolio (A)')
-    % elseif flag == 1
-    %     print_portfolio(minRiskWgt_P1, names, minRiskRet_P1, minRisk_P1, minRiskSR_P1,'Minimum risk Portfolio with constrints (C)')
-    % end
+    % Build a struct for the output
+    Output_struct = struct('Volatility', minRisk_Ptf, 'Weights', minRiskWgt_Ptf,...
+        'Return', minRiskRet_Ptf, 'Sharpe_Ratio', minRiskSR_Ptf);
+    Output_struct.Name = name_ptf;
+    Output_struct.Ptf = Ptf;
 
 end
