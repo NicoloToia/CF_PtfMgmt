@@ -36,7 +36,8 @@ for col = 1:numPtfs
 end
 legend(ptfNames);
 title(Title);
-rowNames = {'annRet', 'annVol', 'Sharpe', 'MaxDD', 'Calmar'};
+% rowNames = {'annRet', 'annVol', 'Sharpe', 'MaxDD', 'Calmar'};
+rowNames = {'Annual Return', 'Annual Volatility', 'Sharpe Ratio', 'Max Drawdown', 'Calmar Ratio'};
 metricesTable = array2table(metricsMatrix,...
     'RowNames', rowNames,...
     'VariableNames', ptfNames);
