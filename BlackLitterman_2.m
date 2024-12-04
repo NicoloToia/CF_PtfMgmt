@@ -1,95 +1,105 @@
-function [ptfMVP, ptfMSR] = ...
-    BlackLitterman( prices,...
-                    caps,...
-                    names,...
-                    views,...
-                    rf)
+function [Output_struct, Ptf] = BlackLitterman_2(Ptf, returns, caps, lambda, views, name_ptf, flag)
 
     % Compute the portfolio frontier, under standard constraints, using the
-    % Black-Litterman model with the following views (to be considered all
-    % at once):
-    % •View on Technology vs. Financials: Given the growing im-
-    % portance of technology, you think that the Technology sector will
-    % outperform the Financial sector of the 2% (annual).
-    % •View on the Momentum vs. Low Volatility factor: You
-    % might assume that Momentum will outperform Low Volatility in
-    % a bull market scenario (annual overperformance of 1%)
-    % Compute the Minimum Variance Portfolio, named Portfolio I, and the
-    % Maximum Sharpe Ratio Portfolio, named Portfolio L, of the frontier.
-
+    % Black-Litterman model
     % INPUTS
-    % prices: matrix of prices
-    % caps: vector of market capitalizations
-    % names: cell array of asset names
-    % views: structure array with fields overperformer, underperformer, delta
-    % rf: risk-free rate
+    % Ptf: Portfolio object
+    % returns: matrix of linear returns
+    % caps: vector of capitalizations
+    % lambda: risk aversion coefficient
+    % views: vector of market-views
+    % name_ptf: name of the portfolio
+    % flag: 0 for minimum risk portfolio, 1 for maximum Sharpe ratio portfolio
+    %
+    % OUTPUTS
+    % Output_struct: a struct containing the volatility, weights, return,
+    %                and Sharpe ratio of the minimum variance portfolio
+    % Ptf: Portfolio object with the moments set to the Black-Litterman moments
 
-    returns = tick2ret(prices);
-    % Calculate mean returns and covariance matrix
-    mean_returns = mean(returns)';
-    cov_matrix = cov(returns);
-    % Define number of assets
-    num_assets = length(names);
     % Build the views
     % Number of views
     v = length(views);
     tau = 1/length(returns);
     % Initialize Matrixes
-    P = zeros(v, num_assets);
+    P = zeros(v, Ptf.NumAssets);
     q = zeros(v, 1);
     Omega = zeros(v);
+
     for i = 1:v
-        P(i, find(names == views(i).overperformer)) = 1;
-        P(i, find(names == views(i).underperformer)) = -1;
+        P(i, Ptf.AssetList == views(i).overperformer) = 1;
+        P(i, Ptf.AssetList == views(i).underperformer) = -1;
         q(i) = views(i).delta;
-        Omega(i,i) = tau.*P(i,:)*cov_matrix*P(i,:)';
+        Omega(i,i) = tau.*P(i,:)*Ptf.AssetCovar*P(i,:)';
     end
+
     % Change to daily returns
     bizyear2bizday = 1/252;
     q = q*bizyear2bizday;
     Omega = Omega*bizyear2bizday;
+
     % Capitalizations Weighted PTF - Market Point of View
-    weightsCaps = caps/sum(caps); weightsCaps = weightsCaps';
-    lambda = 1.2;
-    mu_market = lambda.*cov_matrix*weightsCaps;
-    cov_market = tau.*cov_matrix;
+    weightsCaps = (caps/sum(caps)); 
+    weightsCaps = weightsCaps';
+
+    % Market Moments
+    mu_market = lambda.*Ptf.AssetCovar*weightsCaps;
+    cov_market = tau.*Ptf.AssetCovar;
+
     % Black Litterman Moments
-    muBL = inv(inv(cov_market)+P'*inv(Omega)*P)*...
-        (P'*inv(Omega)*q + inv(cov_market)*mu_market); 
-    covBL = inv(P'*inv(Omega)*P + inv(cov_market));
-    % Create Portfolio for Black & Litterman
-    ptf = Portfolio('NumAssets', num_assets, 'Name', 'MV with BL');
-    ptf = setDefaultConstraints(ptf);
-    ptf.RiskFreeRate = rf;
-    ptf = setAssetMoments(ptf, muBL, cov_matrix + covBL);
+    % muBL = inv(inv(cov_market)+P'*inv(Omega)*P)*...
+    %     (P'*inv(Omega)*q + inv(cov_market)*mu_market); 
+    muBL = (cov_market \ eye(size(cov_market)) + P' * (Omega \ P)) \ ...
+       (P' * (Omega \ q) + (cov_market \ mu_market));
+    % covBL = inv(P'*inv(Omega)*P + inv(cov_market));
+    covBL = (P' * (Omega \ P) + cov_market \ eye(size(cov_market))) \ eye(size(P, 2));
+
+
+    % Set the moments in the Portfolio object
+    Ptf = setAssetMoments(Ptf, muBL, Ptf.AssetCovar + covBL);
+
     % Estimate Frontier
-    pwBL = estimateFrontier(ptf, 100);
-    [risksBL, retBL] = estimatePortMoments(ptf, pwBL);
-    % Find MVP
-    idxMVP = find(risksBL == min(risksBL));
-    wMVP = pwBL(:,idxMVP);
-    retMVP = retBL(idxMVP);
-    stdMVP = risksBL(idxMVP);
-    srMVP = (retMVP - rf)/stdMVP;
-    % Max Sharpe Ratio 
-    wMSR = estimateMaxSharpeRatio(ptf);
-    [stdMSR, retMSR] = estimatePortMoments(ptf, wMSR);
-    srMSR = (retMSR - rf)/stdMSR;
+    pwBL = estimateFrontier(Ptf, 100);
+    [risksBL, retBL] = estimatePortMoments(Ptf, pwBL);
 
-    ptfMVP = struct();
-    ptfMVP.w = wMVP;
-    ptfMVP.ret = retMVP;
-    ptfMVP.std = stdMVP;
-    ptfMVP.sr = srMVP;
+    if flag == 0
 
-    ptfMSR = struct();
-    ptfMSR.w = wMSR;
-    ptfMSR.ret = retMSR;
-    ptfMSR.std = stdMSR;
-    ptfMSR.sr = srMSR;
+        % Find the minimum risk portfolio (Minimum Variance Portfolio - MVP)
+        % idxMVP = find(risksBL == min(risksBL));
+        [stdMVP, idxMVP] = min(risksBL);
+        wMVP = pwBL(:,idxMVP);
+        retMVP = retBL(idxMVP);
+        % stdMVP = risksBL(idxMVP);
+        srMVP = (retMVP - Ptf.RiskFreeRate)/stdMVP;
 
+        % Display the minimum risk portfolio
+        print_portfolio(wMVP, Ptf.AssetList, retMVP, stdMVP, srMVP, name_ptf);
 
-    print_portfolio(wMVP, names, retMVP,stdMSR,srMSR,'Black Litterman Portfolio (I)');
-    print_portfolio(wMSR, names, retMSR,stdMSR,srMSR,'Black Litterman Portfolio (L)');
+        % Build a struct for the output
+        Output_struct = struct('Volatility', stdMVP, 'Weights', wMVP,...
+            'Return', retMVP, 'Sharpe_Ratio', srMVP);
+        Output_struct.Name = name_ptf;
+        Output_struct.Ptf = Ptf;
+
+    elseif flag == 1
+
+        % Find the maximum Sharpe ratio portfolio (Maximum Sharpe Ratio Portfolio - MSR)
+        wMSR = estimateMaxSharpeRatio(Ptf);
+        [stdMSR, retMSR] = estimatePortMoments(Ptf, wMSR);
+        srMSR = (retMSR - Ptf.RiskFreeRate)/stdMSR;
+
+        % Display the maximum Sharpe ratio portfolio
+        print_portfolio(wMSR, Ptf.AssetList, retMSR, stdMSR, srMSR, name_ptf);
+
+        % Build a struct for the output
+        Output_struct = struct('Volatility', stdMSR, 'Weights', wMSR,...
+            'Return', retMSR, 'Sharpe_Ratio', srMSR);
+        Output_struct.Name = name_ptf;
+        Output_struct.Ptf = Ptf;
+
+    else
+        % Error message, not valid flag
+        error('Not valid flag, please use 0 for minimum risk portfolio and 1 for maximum Sharpe ratio portfolio')
+    end
+
 
 end
