@@ -52,7 +52,7 @@ end
 legend(ptfNames, 'Location', 'northwest');
 title(Title);
 xlabel('Time (daily)');
-ylabel('Asset Value (USD)');
+ylabel('Portfolio Value (USD)');
 hold off;
 
 % Create a table of the performance metrics
