@@ -1,5 +1,5 @@
-function [P1,minRisk_P1, minRiskWgt_P1, minRiskRet_P1, minRiskSR_P1] = ...
-    minRiskPortfolio(names, mean_returns, cov_matrix, risk_free_rate , const,flag )
+function [Ptf,minRisk_P1, minRiskWgt_P1, minRiskRet_P1, minRiskSR_P1] = ...
+    minRiskPortfolio(Ptf, risk_free_rate , const, name_ptf)
 
     %   Compute the Minimum Variance Portfolio of the frontier.
     % INPUTS
@@ -9,17 +9,11 @@ function [P1,minRisk_P1, minRiskWgt_P1, minRiskRet_P1, minRiskSR_P1] = ...
     % risk_free_rate: risk free rate
     % const: constraints struct 
 
-    % Create a portfolio object
-    P1 = Portfolio('AssetList', names);
-    P1 = setDefaultConstraints(P1); % all weights sum to 1, no shorting, and 100% investment in risky assets
-    P1 = setAssetMoments(P1, mean_returns, cov_matrix); % set mean returns and covariance matrix
 
-    P1.AInequality = const.Aineq;
-    P1.bInequality = const.bineq;
     % estimate efficient frontier, via object method and 100 P1oints
-    pwgt1 = estimateFrontier(P1, 100);
+    pwgt1 = estimateFrontier(Ptf, 100);
     % estimate portfolio moments
-    [pf_risk_P1, pf_Retn_P1] = estimatePortMoments(P1, pwgt1);
+    [pf_risk_P1, pf_Retn_P1] = estimatePortMoments(Ptf, pwgt1);
     % plot efficient frontier
     % plot(pf_risk_P1, pf_Retn_P1)
 
@@ -29,10 +23,13 @@ function [P1,minRisk_P1, minRiskWgt_P1, minRiskRet_P1, minRiskSR_P1] = ...
     minRiskRet_P1 = mean_returns' * minRiskWgt_P1;
     minRiskSR_P1 = (minRiskRet_P1 - risk_free_rate) / minRisk_P1;
 
-    if flag == 0
-        print_portfolio(minRiskWgt_P1, names, minRiskRet_P1, minRisk_P1, minRiskSR_P1,'Minimum Risk Portfolio (A)')
-    elseif flag == 1
-        print_portfolio(minRiskWgt_P1, names, minRiskRet_P1, minRisk_P1, minRiskSR_P1,'Minimum risk Portfolio with constrints (C)')
-    end
+    print_portfolio(minRiskWgt_P1, names, minRiskRet_P1, minRisk_P1, minRiskSR_P1, name_ptf);
+
+
+    % if flag == 0
+    %     print_portfolio(minRiskWgt_P1, names, minRiskRet_P1, minRisk_P1, minRiskSR_P1,'Minimum Risk Portfolio (A)')
+    % elseif flag == 1
+    %     print_portfolio(minRiskWgt_P1, names, minRiskRet_P1, minRisk_P1, minRiskSR_P1,'Minimum risk Portfolio with constrints (C)')
+    % end
 
 end

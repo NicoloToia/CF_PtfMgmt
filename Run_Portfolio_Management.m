@@ -44,48 +44,18 @@ prices_2023 = prices_data(dates >= start_date & dates <= end_date, :);
 % Calculate daily returns for each index in 2023
 returns_2023 = diff(log(prices_2023));
 
-% cyclical = ["ConsumerDiscretionary", "Financials", "Materials", "RealEstate", "Industrials"];
-% defensive = ["ConsumerStaples", "Utilities", "HealthCare"];
-% sensible = ["Energy", "InformationTechnology", "CommunicationServices"];
-
-% factor = ["Momentum","Value","Growth","Quality","LowVolatility"];
-
-% groups = {cyclical, defensive, sensible, factor};
-
 mean_returns = mean(returns_2023)';
 cov_matrix = cov(returns_2023);
 
 % Define number of assets
 num_assets = length(mean_returns);
 
-% Define the risk-free rate (annual, assuming 4% risk-free rate)
-risk_free_rate = 0; % Convert to daily (365 is correct)
+% Set the risk-free rate = 0
+risk_free_rate = 0; 
 
 if flag_plot == 1
     plotData(returns_2023,prices_2023, names);
 end
-
-const = struct();
-
-%% 1. Efficient Frontier
-
-%   Compute the efficient frontier under the standard constraints.
-%   Compute the Minimum Variance Portfolio, named Portfolio A, and the Maximum Sharpe 
-%   Ratio Portfolio, named Portfolio B, of the frontier.
-
-flag_constraints = 0;
-
-% set constraints
-const.Aineq = [];
-const.bineq = [];
-
-% Portfolio A: Minimum Variance Portfolio
-[~,minRisk_P1, minRiskWgt_P1, minRiskRet_P1, minRiskSR_P1] = ...
-minRiskPortfolio(names, mean_returns, cov_matrix, risk_free_rate,const,flag_constraints);
-
-% Portfolio B: Maximum Sharpe Ratio Portfolio
-[P1,maxSharpeRisk_P1, maxSharpeWgt_P1, maxSharpeRet_P1, maxSharpeSR_P1] = ...
- maxSharpPortfolio(names, mean_returns, cov_matrix, risk_free_rate,const,flag_constraints);
 
 %% market structure
 
@@ -108,6 +78,36 @@ excludeIdx_CS = ismember(P.AssetList, "ConsumerStaples");
 excludeIdx_LV = ismember(P.AssetList, "LowVolatility");
 sectorIdx = ismember(P.AssetList, sectors);
 
+%% 1. Efficient Frontier
+
+%   Compute the efficient frontier under the standard constraints.
+%   Compute the Minimum Variance Portfolio, named Portfolio A, and the Maximum Sharpe 
+%   Ratio Portfolio, named Portfolio B, of the frontier.
+
+const_std = struct();
+
+% set constraints
+const_std.Aineq = [];
+const_std.bineq = [];
+
+% Create a portfolio object
+P1 = Portfolio('AssetList', names);
+P1 = setDefaultConstraints(P1); % all weights sum to 1, no shorting, and 100% investment in risky assets
+P1 = setAssetMoments(P1, mean_returns, cov_matrix); % set mean returns and covariance matrix
+
+P1.AInequality = const.Aineq;
+P1.bInequality = const.bineq;
+
+% Portfolio A: Minimum Variance Portfolio
+[~,minRisk_P1, minRiskWgt_P1, minRiskRet_P1, minRiskSR_P1] = ...
+minRiskPortfolio(P1, risk_free_rate,const_std);
+
+
+% Portfolio B: Maximum Sharpe Ratio Portfolio
+[P1,maxSharpeRisk_P1, maxSharpeWgt_P1, maxSharpeRet_P1, maxSharpeSR_P1] = ...
+ maxSharpPortfolio(names, mean_returns, cov_matrix, risk_free_rate,const_std);
+
+ print_portfolio(maxSharpeWgt_P1, names, maxSharpeRet_P1, maxSharpeRisk_P1, maxSharpeSR_P1,'Max sharpe ratio Portfolio (B)');
 
 %% 2. Efficient Frontier with additional constraints
 
