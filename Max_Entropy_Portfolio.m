@@ -1,50 +1,44 @@
-function [weights_n, portfolio_n_return, portfolio_n_std, portfolio_n_SR] = ...
-          Max_Entropy_Portfolio(mean_returns, cov_matrix, capitalizations, names, risk_free_rate, mkt, P2,num_assets,const)
+function Output_struct = Max_Entropy_Portfolio(Ptf, const, name_ptf)
 
-        % Compute the Maximum Diversified Portfolio (Portfolio M) and the
-        % Maximum Entropy (in asset volatility) Portfolio (Portfolio N), under
-        % the following constraints (to be considered all at once):
-        % - Standard constraints,
-        % - The total exposure on cyclicals has to be greater than 20%,
-        % - Assuming that you have a benchmark portfolio (capitalization
-        %   weighted portfolio), the sum of the difference (in absolute value)
-        %   of the weights in the benchmark portfolio and the optimal weights
-        %   has to be greater than 20%
-
+        % This function computes the Maximum Entropy Portfolio under
+        % the assigned constraints.
         % INPUTS
-        % mean_returns: vector of mean returns of the assets
-        % cov_matrix: covariance matrix of the assets
-        % capitalizations: cell array with the capitalizations of the assets
-        % names: cell array with the names of the assets
-        % risk_free_rate: risk free rate
-        % mkt: structure with the market information
-        % P2: structure with the information about the sectors
-        % num_assets: number of assets
+        % Ptf: Portfolio object
         % const: structure with the constraints
-
-
+        % name_ptf: name of the portfolio
+        %
+        % OUTPUTS
+        % Output_struct: a struct containing the volatility, weights, return,
+        %                and Sharpe ratio of the Maximum Entropy Portfolio
 
         % Set up optimization problem
         % Initial guess
-        initial_guess = ones(num_assets, 1) / num_assets;
-        % Options
+        initial_guess = ones(Ptf.NumAssets, 1) / Ptf.NumAssets;
+
+        % Options for optimization
         options = optimoptions('fmincon', ...     
                 'Algorithm', 'sqp', ... % Specify the algorithm     
                 'StepTolerance', 1e-6, ...       % Smaller than default StepTolerance     
                 'Display', 'off');               % Show iteration information
 
-        % Portfolio N:  Maximum Entropy (in asset volatility) Portfolio
-        % entropy = @(w) sum(w.^2' * diag(cov_matrix)/ sum(w.^2' * diag(cov_matrix)) * log(w.^2' * diag(cov_matrix)/ sum(w.^2' * diag(cov_matrix))));
-        entropy = @(w) sum(w.^2 .* diag(cov_matrix)/ sum(w.^2 .* diag(cov_matrix)) .* log(w.^2 .* diag(cov_matrix)/ sum(w.^2 .* diag(cov_matrix))));%NEW Matte
+        % Entropy function
+        entropy = @(w) sum(w.^2 .* diag(Ptf.AssetCovar)/ sum(w.^2 .* diag(Ptf.AssetCovar)) .* ...
+                        log(w.^2 .* diag(Ptf.AssetCovar)/ sum(w.^2 .* diag(Ptf.AssetCovar))));
 
-        [weights_n, minvalue_n] = fmincon(entropy, initial_guess, const.A, const.b, const.Aeq, const.beq, const.lb, const.ub, const.nonlinconstr, options);
-        portfolio_n_return = mean_returns' * weights_n;
+        [weights, ~] = fmincon(entropy, initial_guess, const.A, const.b, ...
+                                const.Aeq, const.beq, const.lb, const.ub, const.nonlinconstr, options);
 
-        portfolio_n_std = sqrt(weights_n' * cov_matrix * weights_n); %NEW
+        % Compute the return, volatility, and Sharpe ratio of the portfolio
+        portfolio_return = Ptf.AssetMean' * weights;
+        portfolio_std = sqrt(weights' * Ptf.AssetCovar * weights);
+        portfolio_SR = (portfolio_return - Ptf.RiskFreeRate) / portfolio_std;
 
-        portfolio_n_SR = (portfolio_n_return - risk_free_rate) / portfolio_n_std;
+        % Build a struct for the output
+        Output_struct = struct('Volatility', portfolio_std, 'Weights', weights,...
+            'Return', portfolio_return, 'Sharpe_Ratio', portfolio_SR);
+        Output_struct.Name = name_ptf;
+        Output_struct.Ptf = Ptf;
 
-        % Display Portfolio N - Maximum Entropy Portfolio
-
-        print_portfolio(weights_n, names, portfolio_n_return, portfolio_n_std, portfolio_n_SR,'Max Entropy Portfolio (N)')
+        % Display Portfolio - Maximum Entropy Portfolio
+        print_portfolio(weights, Ptf.AssetList, portfolio_return, portfolio_std, portfolio_SR, name_ptf);
 end
