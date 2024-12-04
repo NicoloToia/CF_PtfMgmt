@@ -1,51 +1,56 @@
 function [] = disp_pie_weights(weightsTable)
+% This function displays pie charts of the asset allocations for each portfolio.
 
-% Ottieni il numero di portafogli
+% Get the number of portfolios
 numPortfolios = numel(weightsTable.Properties.VariableNames);
 
-% Dividi il numero di portafogli per due finestre
+% Set two different windows for the pie charts of the portfolios
 halfPortfolios = ceil(numPortfolios / 2);
 
-% Ottieni i nomi dei portafogli e degli asset
-portfolioNames = weightsTable.Properties.VariableNames; % Nomi dei portafogli
-assetNames = weightsTable.Properties.RowNames;          % Nomi degli asset
+% get the names of the portfolios and assets
+portfolioNames = weightsTable.Properties.VariableNames; 
+assetNames = weightsTable.Properties.RowNames;          
 
-% Prima finestra
-figure('Name', 'Portfolio Allocations');
-rows = ceil(sqrt(halfPortfolios));
-cols = ceil(halfPortfolios / rows);
+%%
+    % First window
+    figure('Name', 'Portfolio Allocations');
+    rows = ceil(sqrt(halfPortfolios));
+    cols = ceil(halfPortfolios / rows);
 
-for i = 1:halfPortfolios
-    % Estrai i pesi per il portafoglio corrente
-    portfolioWeights = weightsTable{:, portfolioNames{i}};
-    
-    % Crea un subplot
-    subplot(rows, cols, i);
-    pie(portfolioWeights, string(round(portfolioWeights * 100, 1)) + "%");
-    title(['Asset Allocation ', portfolioNames{i}]);
+    for i = 1:halfPortfolios
+        % Extract the weights for the current portfolio
+        portfolioWeights = weightsTable{:, portfolioNames{i}};
+        
+        % Create a subplot
+        subplot(rows, cols, i);
+        pie(portfolioWeights, string(round(portfolioWeights * 100, 1)) + "%");
+        title(['Asset Allocation ', portfolioNames{i}]);
+    end
+
+    % Add a shared vertical legend for the first window
+    % Positioned to the right of the window
+    legend(assetNames, 'Location', 'eastoutside', 'Orientation', 'vertical');
+    sgtitle('Portfolio Allocations'); % General title of the window
+
+%%
+    % Second window
+    figure('Name', 'Portfolio Allocations');
+    rows = ceil(sqrt(numPortfolios - halfPortfolios));
+    cols = ceil((numPortfolios - halfPortfolios) / rows);
+
+    for i = halfPortfolios+1:numPortfolios
+        % Extract the weights for the current portfolio
+        portfolioWeights = weightsTable{:, portfolioNames{i}};
+        
+        % Create a subplot
+        subplot(rows, cols, i - halfPortfolios);
+        pie(portfolioWeights, string(round(portfolioWeights * 100, 1)) + "%");
+        title(['Asset Allocation  ', portfolioNames{i}]);
+    end
+
+    % Add a shared vertical legend for the second window
+    % Positioned to the right of the window
+    legend(assetNames, 'Location', 'eastoutside', 'Orientation', 'vertical');
+    sgtitle('Portfolio Allocations'); % General title of the window
+
 end
-
-% Aggiungi una legenda verticale condivisa per la prima finestra
-% Posizionata a destra della finestra
-legend(assetNames, 'Location', 'eastoutside', 'Orientation', 'vertical');
-sgtitle('Portfolio Allocations'); % Titolo generale della finestra
-
-% Seconda finestra
-figure('Name', 'Portfolio Allocations');
-rows = ceil(sqrt(numPortfolios - halfPortfolios));
-cols = ceil((numPortfolios - halfPortfolios) / rows);
-
-for i = halfPortfolios+1:numPortfolios
-    % Estrai i pesi per il portafoglio corrente
-    portfolioWeights = weightsTable{:, portfolioNames{i}};
-    
-    % Crea un subplot
-    subplot(rows, cols, i - halfPortfolios);
-    pie(portfolioWeights, string(round(portfolioWeights * 100, 1)) + "%");
-    title(['Asset Allocation  ', portfolioNames{i}]);
-end
-
-% Aggiungi una legenda verticale condivisa per la seconda finestra
-% Posizionata a destra della finestra
-legend(assetNames, 'Location', 'eastoutside', 'Orientation', 'vertical');
-sgtitle('Portfolio Allocations'); % Titolo generale della finestra

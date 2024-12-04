@@ -1,11 +1,17 @@
 function [annRet, annVol, Sharpe, MaxDD, Calmar] = getPerformanceMetrics(x)
 
+    % This function computes the annualized metrics
+
+    % Annualized return
     annRet = (x(end) / x(1)) .^ (1 / (length(x) / 252)) - 1;
     
+    % Annualized volatility
     annVol = std(tick2ret(x)) * sqrt(252);
     
+    % Sharpe ratio
     Sharpe = annRet / annVol; 
     
+    % Maximum drawdown
     dd = zeros(1, length(x));
     
     for i = 1 : length(x)
@@ -14,6 +20,7 @@ function [annRet, annVol, Sharpe, MaxDD, Calmar] = getPerformanceMetrics(x)
     
     MaxDD = min(dd); 
     
+    % Calmar ratio
     Calmar = annRet / abs(MaxDD); 
 
 end

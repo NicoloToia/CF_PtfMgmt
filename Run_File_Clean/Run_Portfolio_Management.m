@@ -357,24 +357,11 @@ metricsTable = table(...
     'RowNames', {'Expected Return', 'Volatility', 'Sharpe Ratio', 'Sum of Weights'} ...
 );
 
-% % Display the weights table
-% disp('==============================================================================================')
-% disp('                                    Portfolio Weights Table                                   ')
-% disp('==============================================================================================')
-% disp(weightsTable)
-
 % Define the threshold for the weights, e.g. if the weight is smaller than the threshold, it is considered 0
 threshold = 1e-10;
 
 % Set the weights smaller than the threshold to 0
 weightsTable{:, :} = arrayfun(@(x) x * (abs(x) >= threshold), weightsTable{:, :});
-
-% % Calculate the sum of the weights for each column (for consistency check the sum is computed between all the weights different from 0)
-% columnSums = sum(weightsTable{:, :} .* (weightsTable{:, :} ~= 0));
-% total_check = array2table(columnSums, 'RowNames', {'Total'}, 'VariableNames', weightsTable.Properties.VariableNames);
-% 
-% % Add the sum as the last row to the table
-% weightsTable = [weightsTable; total_check];
 
 % Display the weights table
 disp('==============================================================================================')
