@@ -48,7 +48,7 @@ mean_returns = mean(returns_2023)';
 cov_matrix = cov(returns_2023);
 
 % Define number of assets
-num_assets = length(mean_returns);
+num_assets = length(names);
 
 % Set the risk-free rate = 0
 risk_free_rate = 0; 
@@ -84,8 +84,8 @@ sectorIdx = ismember(P.AssetList, sectors);
 %   Compute the Minimum Variance Portfolio, named Portfolio A, and the Maximum Sharpe 
 %   Ratio Portfolio, named Portfolio B, of the frontier.
 
+% Create a struct for the constraints
 const_std = struct();
-
 % set constraints
 const_std.Aineq = [];
 const_std.bineq = [];
@@ -94,20 +94,22 @@ const_std.bineq = [];
 P1 = Portfolio('AssetList', names);
 P1 = setDefaultConstraints(P1); % all weights sum to 1, no shorting, and 100% investment in risky assets
 P1 = setAssetMoments(P1, mean_returns, cov_matrix); % set mean returns and covariance matrix
+% set constraints of the portfolio
+P1.AInequality = const_std.Aineq;
+P1.bInequality = const_std.bineq;
 
-P1.AInequality = const.Aineq;
-P1.bInequality = const.bineq;
+% estimate efficient frontier, via object method and 100 Ptfoints
+pwgt1 = estimateFrontier(P1, 100);
+% estimate portfolio moments
+[pf_risk_Ptf_1, pf_Retn_Ptf_1] = estimatePortMoments(P1, pwgt1);
+% plot efficient frontier
+% plot(pf_risk_Ptf_1, pf_Retn_Ptf_1)
 
 % Portfolio A: Minimum Variance Portfolio
-[~,minRisk_P1, minRiskWgt_P1, minRiskRet_P1, minRiskSR_P1] = ...
-minRiskPortfolio(P1, risk_free_rate,const_std);
-
+Portfolio_A = minRiskPortfolio(P1, risk_free_rate, pwgt1, pf_risk_Ptf_1, 'Minimum Risk Portfolio (A)');
 
 % Portfolio B: Maximum Sharpe Ratio Portfolio
-[P1,maxSharpeRisk_P1, maxSharpeWgt_P1, maxSharpeRet_P1, maxSharpeSR_P1] = ...
- maxSharpPortfolio(names, mean_returns, cov_matrix, risk_free_rate,const_std);
-
- print_portfolio(maxSharpeWgt_P1, names, maxSharpeRet_P1, maxSharpeRisk_P1, maxSharpeSR_P1,'Max sharpe ratio Portfolio (B)');
+Portfolio_B = maxSharpPortfolio(P1,risk_free_rate, 'Max sharpe ratio Portfolio (B)');
 
 %% 2. Efficient Frontier with additional constraints
 
@@ -123,26 +125,38 @@ minRiskPortfolio(P1, risk_free_rate,const_std);
 %  Compute the Minimum Variance Portfolio, named Portfolio C, and the
 %  Maximum Sharpe Ratio Portfolio, named Portfolio D, of the frontier.
 
-flag_constraints = 1;
-
+% Create a struct for the constraints
+const_spec = struct();
 % set constraints
-const.Aineq = [
+const_spec.Aineq = [
     -sensibleIdx;
     cyclicalIdx;
     excludeIdx_CS;
     excludeIdx_LV;
     sectorIdx;
-];
+    ];
+const_spec.bineq = [-0.1; 0.3; 0; 0; 0.8];
 
-const.bineq = [-0.1; 0.3; 0; 0; 0.8];
+% Create a portfolio object
+P2 = Portfolio('AssetList', names);
+P2 = setDefaultConstraints(P2); % all weights sum to 1, no shorting, and 100% investment in risky assets
+P2 = setAssetMoments(P2, mean_returns, cov_matrix); % set mean returns and covariance matrix
+% set constraints of the portfolio
+P2.AInequality = const_spec.Aineq;
+P2.bInequality = const_spec.bineq;
 
-% Portfolio C and D: Minimum Variance Portfolio and Maximum Sharpe Ratio Portfolio with constraints
-[~,minRisk_P2, minRiskWgt_P2, minRiskRet_P2, minRiskSR_P2] = ...
-    minRiskPortfolio(names, mean_returns, cov_matrix, risk_free_rate,const,flag_constraints);
+% estimate efficient frontier, via object method and 100 Ptfoints
+pwgt2 = estimateFrontier(P2, 100);
+% estimate portfolio moments
+[pf_risk_Ptf_2, pf_Retn_Ptf_2] = estimatePortMoments(P2, pwgt2);
+% plot efficient frontier
+% plot(pf_risk_Ptf_2, pf_Retn_Ptf_2)
 
-[P2,maxSharpeRisk_P2, maxSharpeWgt_P2, maxSharpeRet_P2, maxSharpeSR_P2] = ...
-    maxSharpPortfolio(names, mean_returns, cov_matrix, risk_free_rate,const,flag_constraints);
+% Portfolio C: Minimum Variance Portfolio with specific constraints
+Portfolio_C = minRiskPortfolio(P2, risk_free_rate, pwgt2, pf_risk_Ptf_2, 'Minimum risk Portfolio with constrints (C)');
 
+% Portfolio D: Maximum Sharpe Ratio Portfolio with specific constraints
+Portfolio_D = maxSharpPortfolio(P2,risk_free_rate, 'Max sharpe ratio Portfolio with constrints (D)');
 
 %% 3. Efficient Frontier and Resampling Method
 
@@ -151,12 +165,23 @@ const.bineq = [-0.1; 0.3; 0; 0; 0.8];
 %  Variance Portfolios, named Portfolios E and F, and the Maximum
 %  Sharpe Ratio Portfolios, named Portfolios G and H, of the frontiers.
 
-% Portfolio E and F: Minimum Variance Portfolio with resampling
-[minRisk_P1_Rsim, minRiskWgt_P1_Rsim, minRiskRet_P1_Rsim, minRiskSR_P1_Rsim, ...
-    minRisk_P2_Rsim, minRiskWgt_P2_Rsim, minRiskRet_P2_Rsim, minRiskSR_P2_Rsim, ...
-        maxSharpeSR_P1_Rsim, maxSharpeWgt_P1_Rsim, maxSharpeRet_P1_Rsim, maxSharpeRisk_P1_Rsim, ...
-            maxSharpeSR_P2_Rsim, maxSharpeWgt_P2_Rsim, maxSharpeRet_P2_Rsim, maxSharpeRisk_P2_Rsim] = ...
-                resampling_method(mean_returns, cov_matrix, P1, P2, risk_free_rate,num_assets,names);
+% Set the flag for Minimum Variance Portfolio or Maximum Sharpe Ratio Portfolio
+% 0: Minimum Variance Portfolio
+% 1: Maximum Sharpe Ratio Portfolio
+
+% Portfolio E: Minimum Variance Portfolio with resampling
+flag = 0;
+Portfolio_E = resampling_method(P1, risk_free_rate, 'Minimum risk Portfolio with resampling (E)', flag);
+
+% Portfolio F: Minimum Variance Portfolio with resampling and constraints
+Portfolio_F = resampling_method(P2, risk_free_rate, 'Minimum risk Portfolio with resampling and constraints (F)', flag);
+
+% Portfolio G: Maximum Sharpe Ratio Portfolio with resampling
+flag = 1;
+Portfolio_G = resampling_method(P1, risk_free_rate, 'Max sharpe ratio Portfolio with resampling (G)', flag);
+
+% Portfolio H: Maximum Sharpe Ratio Portfolio with resampling and constraints
+Portfolio_H = resampling_method(P2, risk_free_rate, 'Max sharpe ratio Portfolio with resampling and constraints (H)', flag);
 
 %% 4. Black-Litterman Model
 
@@ -252,74 +277,74 @@ view2.delta = 1/100;
 
 %% Output carino dei portafogli insieme 
 
-% Combine the weights for each portfolio
-weights_A = array2table(minRiskWgt_P1, 'RowNames', names, 'VariableNames', {'Portfolio A'});
-weights_B = array2table(maxSharpeWgt_P1, 'RowNames', names, 'VariableNames', {'Portfolio B'});
-weights_C = array2table(minRiskWgt_P2, 'RowNames', names, 'VariableNames', {'Portfolio C'});
-weights_D = array2table(maxSharpeWgt_P2, 'RowNames', names, 'VariableNames', {'Portfolio D'});
-weights_E = array2table(minRiskWgt_P1_Rsim, 'RowNames', names, 'VariableNames', {'Portfolio E'});
-weights_F = array2table(minRiskWgt_P2_Rsim, 'RowNames', names, 'VariableNames', {'Portfolio F'});
-weights_G = array2table(maxSharpeWgt_P1_Rsim, 'RowNames', names, 'VariableNames', {'Portfolio G'});
-weights_H = array2table(maxSharpeWgt_P2_Rsim, 'RowNames', names, 'VariableNames', {'Portfolio H'});
-weights_I = array2table(ptf_I.w, 'RowNames', names, 'VariableNames', {'Portfolio I'});
-weights_L = array2table(ptf_L.w, 'RowNames', names, 'VariableNames', {'Portfolio L'});
-weights_M = array2table(weights_m, 'RowNames', names, 'VariableNames', {'Portfolio M'});
-weights_N = array2table(weights_n, 'RowNames', names, 'VariableNames', {'Portfolio N'});
+% % Combine the weights for each portfolio
+% weights_A = array2table(minRiskWgt_P1, 'RowNames', names, 'VariableNames', {'Portfolio A'});
+% weights_B = array2table(maxSharpeWgt_P1, 'RowNames', names, 'VariableNames', {'Portfolio B'});
+% weights_C = array2table(minRiskWgt_P2, 'RowNames', names, 'VariableNames', {'Portfolio C'});
+% weights_D = array2table(maxSharpeWgt_P2, 'RowNames', names, 'VariableNames', {'Portfolio D'});
+% weights_E = array2table(minRiskWgt_P1_Rsim, 'RowNames', names, 'VariableNames', {'Portfolio E'});
+% weights_F = array2table(minRiskWgt_P2_Rsim, 'RowNames', names, 'VariableNames', {'Portfolio F'});
+% weights_G = array2table(maxSharpeWgt_P1_Rsim, 'RowNames', names, 'VariableNames', {'Portfolio G'});
+% weights_H = array2table(maxSharpeWgt_P2_Rsim, 'RowNames', names, 'VariableNames', {'Portfolio H'});
+% weights_I = array2table(ptf_I.w, 'RowNames', names, 'VariableNames', {'Portfolio I'});
+% weights_L = array2table(ptf_L.w, 'RowNames', names, 'VariableNames', {'Portfolio L'});
+% weights_M = array2table(weights_m, 'RowNames', names, 'VariableNames', {'Portfolio M'});
+% weights_N = array2table(weights_n, 'RowNames', names, 'VariableNames', {'Portfolio N'});
 
-weightsTable = [weights_A, weights_B, weights_C, weights_D,...
-                weights_E, weights_F, weights_G, weights_H,...
-                weights_I, weights_L, weights_M, weights_N];
+% weightsTable = [weights_A, weights_B, weights_C, weights_D,...
+%                 weights_E, weights_F, weights_G, weights_H,...
+%                 weights_I, weights_L, weights_M, weights_N];
 
-metricsTable = table(...
-    [minRiskRet_P1; minRisk_P1; minRiskSR_P1; sum(minRiskWgt_P1)], ...
-    [maxSharpeRet_P1; maxSharpeRisk_P1; maxSharpeSR_P1; sum(maxSharpeWgt_P1)], ...
-    [minRiskRet_P2; minRisk_P2; minRiskSR_P2; sum(minRiskWgt_P2)], ...
-    [maxSharpeRet_P2; maxSharpeRisk_P2; maxSharpeSR_P2; sum(maxSharpeWgt_P2)], ...
-    [minRiskRet_P1_Rsim; minRisk_P1_Rsim; minRiskSR_P1_Rsim; sum(minRiskWgt_P1_Rsim)], ...
-    [minRiskRet_P2_Rsim; minRisk_P2_Rsim; minRiskSR_P2_Rsim; sum(minRiskWgt_P2_Rsim)], ...
-    [maxSharpeRet_P1_Rsim; maxSharpeRisk_P1_Rsim; maxSharpeSR_P1_Rsim; sum(maxSharpeWgt_P1_Rsim)], ...
-    [maxSharpeRet_P2_Rsim; maxSharpeRisk_P2_Rsim; maxSharpeSR_P2_Rsim; sum(maxSharpeWgt_P2_Rsim)], ...
-    [ptf_I.ret; ptf_I.std; ptf_I.sr; sum(ptf_I.w)], ...
-    [ptf_L.ret; ptf_L.std; ptf_L.sr; sum(ptf_L.w)], ...
-    [portfolio_m_return; portfolio_m_std; portfolio_m_SR; sum(weights_m)], ...
-    [portfolio_n_return; portfolio_n_std; portfolio_n_SR; sum(weights_n)], ...
-    'VariableNames', {'Portfolio A', 'Portfolio B', 'Portfolio C', 'Portfolio D', ...
-                      'Portfolio E', 'Portfolio F', 'Portfolio G', 'Portfolio H', ...
-                      'Portfolio I', 'Portfolio L', 'Portfolio M', 'Portfolio N'}, ...
-    'RowNames', {'Expected Return', 'Volatility', 'Sharpe Ratio', 'Sum of Weights'} ...
-);
+% metricsTable = table(...
+%     [minRiskRet_P1; minRisk_P1; minRiskSR_P1; sum(minRiskWgt_P1)], ...
+%     [maxSharpeRet_P1; maxSharpeRisk_P1; maxSharpeSR_P1; sum(maxSharpeWgt_P1)], ...
+%     [minRiskRet_P2; minRisk_P2; minRiskSR_P2; sum(minRiskWgt_P2)], ...
+%     [maxSharpeRet_P2; maxSharpeRisk_P2; maxSharpeSR_P2; sum(maxSharpeWgt_P2)], ...
+%     [minRiskRet_P1_Rsim; minRisk_P1_Rsim; minRiskSR_P1_Rsim; sum(minRiskWgt_P1_Rsim)], ...
+%     [minRiskRet_P2_Rsim; minRisk_P2_Rsim; minRiskSR_P2_Rsim; sum(minRiskWgt_P2_Rsim)], ...
+%     [maxSharpeRet_P1_Rsim; maxSharpeRisk_P1_Rsim; maxSharpeSR_P1_Rsim; sum(maxSharpeWgt_P1_Rsim)], ...
+%     [maxSharpeRet_P2_Rsim; maxSharpeRisk_P2_Rsim; maxSharpeSR_P2_Rsim; sum(maxSharpeWgt_P2_Rsim)], ...
+%     [ptf_I.ret; ptf_I.std; ptf_I.sr; sum(ptf_I.w)], ...
+%     [ptf_L.ret; ptf_L.std; ptf_L.sr; sum(ptf_L.w)], ...
+%     [portfolio_m_return; portfolio_m_std; portfolio_m_SR; sum(weights_m)], ...
+%     [portfolio_n_return; portfolio_n_std; portfolio_n_SR; sum(weights_n)], ...
+%     'VariableNames', {'Portfolio A', 'Portfolio B', 'Portfolio C', 'Portfolio D', ...
+%                       'Portfolio E', 'Portfolio F', 'Portfolio G', 'Portfolio H', ...
+%                       'Portfolio I', 'Portfolio L', 'Portfolio M', 'Portfolio N'}, ...
+%     'RowNames', {'Expected Return', 'Volatility', 'Sharpe Ratio', 'Sum of Weights'} ...
+% );
 
-% Display the weights table
-disp('==============================================================================================')
-disp('                                    Portfolio Weights Table                                   ')
-disp('==============================================================================================')
-disp(weightsTable)
+% % Display the weights table
+% disp('==============================================================================================')
+% disp('                                    Portfolio Weights Table                                   ')
+% disp('==============================================================================================')
+% disp(weightsTable)
 
-% Display the metrics table
-disp('==============================================================================================')
-disp('                                    Portfolio Metrics Table                                   ')
-disp('==============================================================================================')
-disp(metricsTable)
+% % Display the metrics table
+% disp('==============================================================================================')
+% disp('                                    Portfolio Metrics Table                                   ')
+% disp('==============================================================================================')
+% disp(metricsTable)
 
-disp_pie_weights(weightsTable)
+% disp_pie_weights(weightsTable)
 
-% Display the metrics table
-disp('==============================================================================================')
-disp('                                    Portfolio Performance Metrics 2023                                 ')
-disp('==============================================================================================')
-[eq, performancesMetrics] = getEquityandMetrices(weightsTable, prices_2023, "2023");
-disp(performancesMetrics)
-% Display the metrics table
-disp('==============================================================================================')
-disp('                                    Portfolio Performance Metrics 2024                                 ')
-disp('==============================================================================================')
-[eq, performancesMetrics] = getEquityandMetrices(weightsTable, prices_2024, "2024");
-disp(performancesMetrics)
-
-
+% % Display the metrics table
+% disp('==============================================================================================')
+% disp('                                    Portfolio Performance Metrics 2023                                 ')
+% disp('==============================================================================================')
+% [eq, performancesMetrics] = getEquityandMetrices(weightsTable, prices_2023, "2023");
+% disp(performancesMetrics)
+% % Display the metrics table
+% disp('==============================================================================================')
+% disp('                                    Portfolio Performance Metrics 2024                                 ')
+% disp('==============================================================================================')
+% [eq, performancesMetrics] = getEquityandMetrices(weightsTable, prices_2024, "2024");
+% disp(performancesMetrics)
 
 
-% Display the time taken
-disp('==============================================================================================')
-disp(['Time taken: ', num2str(toc), ' seconds'])
-disp('==============================================================================================')
+
+
+% % Display the time taken
+% disp('==============================================================================================')
+% disp(['Time taken: ', num2str(toc), ' seconds'])
+% disp('==============================================================================================')
