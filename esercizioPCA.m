@@ -111,15 +111,11 @@ covarAsset = factorLoading*covarFactor*factorLoading' + D;
 port = Portfolio("AssetMean", mean_ret, 'AssetCovar', round(covarAsset,13),...
     'LowerBound', 0, 'UpperBound', 1, ...
     'Budget', 1);
-portfolio_P = estimateFrontierByRisk(port, 0.1/sqrt(252));
-T2 = table(assetNames', round(portfolio_P,4));
-portfolio_EW = ones(num_assets,1)/num_assets;
-% equity_P = getEquityandMetrices([portfolio_P portfolio_EW], prices_2023, ...
-%    ["P", "EW"], "2023");
-% figure
-% pie(portfolio_P (portfolio_P >= 0.01), assetNames(portfolio_P >= 0.01))
-sqrt(portfolio_P' * covarAsset * portfolio_P)
-sqrt(portfolio_P' * cov(ret) * portfolio_P)
+portfolio_P = estimateFrontierByRisk(port, 0.7);
+T2 = table(assetNames', round(portfolio_P,4))
+figure;
+pie(portfolio_P (portfolio_P >= 0.01), assetNames(portfolio_P >= 0.01))
+
 %%
 % fmincon
 
@@ -136,11 +132,9 @@ options = optimoptions('fmincon','Display','iter','Algorithm','sqp',...
     'ConstraintTolerance', 1e-2, 'Display', 'none');
 
 [w, fval] = fmincon(func, x0, [], [], Aeq, beq, lb, ub,...
-    @(x) nonlconPCA(x, 1, factorLoading, covarFactor, D),...
+    @(x) nonlconPCA(x, 0.7, factorLoading, covarFactor, D),...
     options);
 
-sqrt(w'*(factorLoading*covarFactor*factorLoading' + D)*w)
-sqrt(w'*cov(ret)*w)
-% figure;
-% pie(w (w >= 0.01), assetNames(w >= 0.01))
+figure;
+pie(w (w >= 0.01), assetNames(w >= 0.01))
 

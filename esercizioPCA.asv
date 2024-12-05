@@ -1,7 +1,7 @@
 clear;
 close all; 
 clc;
-
+warning on;
 %% PART A 
 
 % Load data from Excel files
@@ -55,9 +55,10 @@ groups = {cyclical, defensive, sensible, factor};
 % than the 90% of the cumulative variance.
 
 ret = tick2ret(prices_2023, 'Method','continuous');
+n_samples = size(ret, 1);
 mean_ret = mean(ret);
 sd_ret = std(ret);
-std_ret = (ret - repmat(mean_ret,249,1)) ./ repmat(sd_ret,249,1);
+std_ret = (ret - repmat(mean_ret,n_samples,1)) ./ repmat(sd_ret,n_samples,1);
 
 k = 16;
 [~,~,latent,~,~,~] =...
@@ -74,12 +75,20 @@ find(CumExplainedVar >= .9, 1)
 % Choosing k = 6
 %%
 h = figure();
-cmap = par
+cmap = parula(length(explainedVar));
 subplot(1,2,1)
 b = bar(explainedVar,'FaceColor','white','EdgeColor','k');
+for i = 1:length(explainedVar)
+    b.FaceColor = 'flat'; % Enable individual bar coloring
+    b.CData(i, :) = cmap(i, :); % Assign color to each bar
+end
 title("% Explained Variance");
 subplot(1,2,2)
-bar(CumExplainedVar,'FaceColor','white','EdgeColor','k');
+b = bar(CumExplainedVar,'FaceColor','white','EdgeColor','k');
+for i = 1:length(explainedVar)
+    b.FaceColor = 'flat'; % Enable individual bar coloring
+    b.CData(i, :) = cmap(i, :); % Assign color to each bar
+end
 yline(0.90, '--k', 'LineWidth',1.5);
 title("% Cumulative Variance");
 %%
@@ -102,15 +111,12 @@ covarAsset = factorLoading*covarFactor*factorLoading' + D;
 port = Portfolio("AssetMean", mean_ret, 'AssetCovar', round(covarAsset,13),...
     'LowerBound', 0, 'UpperBound', 1, ...
     'Budget', 1);
-portfolio_P = estimateFrontierByRisk(port, 0.1);
+portfolio_P = estimateFrontierByRisk(port, 0.7);
 T2 = table(assetNames', round(portfolio_P,4));
 portfolio_EW = ones(num_assets,1)/num_assets;
-% equity_P = getEquityandMetrices([portfolio_P portfolio_EW], prices_2023, ...
-%    ["P", "EW"], "2023");
-% figure
-% pie(portfolio_P (portfolio_P >= 0.01), assetNames(portfolio_P >= 0.01))
-sqrt(portfolio_P' * covarAsset * portfolio_P)
-sqrt(portfolio_P' * cov(ret) * portfolio_P)
+figure;
+pie(portfolio_P (portfolio_P >= 0.01), assetNames(portfolio_P >= 0.01))
+
 %%
 % fmincon
 
@@ -127,11 +133,9 @@ options = optimoptions('fmincon','Display','iter','Algorithm','sqp',...
     'ConstraintTolerance', 1e-2, 'Display', 'none');
 
 [w, fval] = fmincon(func, x0, [], [], Aeq, beq, lb, ub,...
-    @(x) nonlconPCA(x, 0.1, factorLoading, covarFactor, D),...
+    @(x) nonlconPCA(x, 0.7, factorLoading, covarFactor, D),...
     options);
 
-sqrt(w'*(factorLoading*covarFactor*factorLoading' + D)*w)
-sqrt(w'*cov(ret)*w)
-% figure;
-% pie(w (w >= 0.01), assetNames(w >= 0.01))
+figure;
+pie(w (w >= 0.01), assetNames(w >= 0.01))
 
