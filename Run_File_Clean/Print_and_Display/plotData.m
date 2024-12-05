@@ -48,23 +48,24 @@ for i = 1:16
         'MarkerEdgeColor', 'none'); % Change points color
     title(names(i));
 end
-%% Shapiro-Wilk and Shapiro-Francia normality tests and Kolmogorov-Smirnov Test (K-S Test) for t-Student
+%% Shapiro-Wilk/Shapiro-Francia and Kolmogorov-Smirnov (K-S Test) normality tests
 % Variables declarations
 H_SW = zeros(size(returns,2), 1); pValue_SW = zeros(size(returns,2), 1); W_SW = zeros(size(returns,2), 1);
 H_KS = zeros(size(returns,2), 1); pValue_KS = zeros(size(returns,2), 1);
-df = 50; % degrees of freedom
+
 disp('====================================================================================================')
-fprintf('SW-test for normality and K-S test fot t-Student distribution with %d degrees of freedom\n', df)
+fprintf('SW-test and K-S test for normality\n')
 disp('====================================================================================================')
 fprintf('Legend: \n- name --> H = 0: accept normality \n- name --> H = 1: reject normality \n\n')
+figure()
 
 for i = 1 : size(returns,2)
     % swtest performs the Shapiro-Francia test when the series is Leptokurtik (kurtosis > 3), 
     % otherwise it performs the Shapiro-Wilk test.
     [H_SW(i), pValue_SW(i), W_SW(i)] = swtest(returns(:,i));
 
-    % Kolmogorov-Smirnov Test (K-S Test):
-    test_cdf = makedist('tlocationscale','mu',mean(returns(:,i)),'sigma',std(returns(:,i)),'nu',df);
+    % Kolmogorov-Smirnov Test (K-S Test) for normality:
+    test_cdf = makedist('Normal','mu',mean(returns(:,i)),'sigma',std(returns(:,i)));
     [H_KS(i), pValue_KS(i)] = kstest(returns(:,i), 'CDF', test_cdf);
 end
 
