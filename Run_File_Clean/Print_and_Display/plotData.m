@@ -47,7 +47,7 @@ for i = 1:16
         'MarkerEdgeColor', 'none'); % Change points color
     title(names(i));
 end
-%% Shapiro-Wilk and Shapiro-Francia normality tests
+%% Shapiro-Wilk and Shapiro-Francia normality tests and Kolmogorov-Smirnov Test (K-S Test) for t-Student
 % Variables declarations
 H_SW = zeros(size(returns,2), 1); pValue_SW = zeros(size(returns,2), 1); W_SW = zeros(size(returns,2), 1);
 H_KS = zeros(size(returns,2), 1); pValue_KS = zeros(size(returns,2), 1);
