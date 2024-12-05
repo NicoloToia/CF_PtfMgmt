@@ -27,8 +27,8 @@ ptfs = [];
 
 for i = 1:2
     confidence_levels(i)
-    VaR_H = @(x) quantile(returns * x, 1 - confidence_levels(i));
-    VaR_N = @(x) mean_ret * x - sqrt(x' * cov_matrix * x) * norminv(confidence_levels(i));
+    VaR_H = @(x) - quantile(returns * x, 1 - confidence_levels(i));
+    VaR_N = @(x)  - mean_ret * x + sqrt(x' * cov_matrix * x) * norminv(confidence_levels(i));
     Risk = @(x) sqrt(x' * cov_matrix * x);
     % Define the objective function (negative VaR-modified Sharpe Ratio)
     objective_function_H = @(x) -(mean_ret * x - risk_free_rate) / VaR_H(x);
@@ -68,8 +68,8 @@ rets = returns * ptfs;
 disp('===========================================================================')
 disp(' VaR modified sharpe ratio Portfolio (Portfolio Q)')
 disp('===========================================================================')
-weightsTable = array2table(round(ptfs,4), "RowNames",names,...
-    "VariableNames",{'95_H','95_N','R_', '99_H','99_N', 'R', 'EW'})
+weightsTable = array2table(ptfs, "RowNames",names,...
+    "VariableNames",{'95_H','95_N','R', '99_H','99_N', 'R' 'EW'})
 [~, table] = getEquityandMetrices(weightsTable, prices_data, "2023");
 figure;
 subplot(2,2,1);

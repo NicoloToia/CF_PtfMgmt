@@ -1,7 +1,7 @@
 clear;
 close all; 
 clc;
-warning on;
+
 %% PART A 
 
 % Load data from Excel files
@@ -55,10 +55,9 @@ groups = {cyclical, defensive, sensible, factor};
 % than the 90% of the cumulative variance.
 
 ret = tick2ret(prices_2023, 'Method','continuous');
-n_samples = size(ret, 1);
 mean_ret = mean(ret);
 sd_ret = std(ret);
-std_ret = (ret - repmat(mean_ret,n_samples,1)) ./ repmat(sd_ret,n_samples,1);
+std_ret = (ret - repmat(mean_ret,249,1)) ./ repmat(sd_ret,249,1);
 
 k = 16;
 [~,~,latent,~,~,~] =...
@@ -75,20 +74,12 @@ find(CumExplainedVar >= .9, 1)
 % Choosing k = 6
 %%
 h = figure();
-cmap = parula(length(explainedVar));
+cmap = par
 subplot(1,2,1)
 b = bar(explainedVar,'FaceColor','white','EdgeColor','k');
-for i = 1:length(explainedVar)
-    b.FaceColor = 'flat'; % Enable individual bar coloring
-    b.CData(i, :) = cmap(i, :); % Assign color to each bar
-end
 title("% Explained Variance");
 subplot(1,2,2)
-b = bar(CumExplainedVar,'FaceColor','white','EdgeColor','k');
-for i = 1:length(explainedVar)
-    b.FaceColor = 'flat'; % Enable individual bar coloring
-    b.CData(i, :) = cmap(i, :); % Assign color to each bar
-end
+bar(CumExplainedVar,'FaceColor','white','EdgeColor','k');
 yline(0.90, '--k', 'LineWidth',1.5);
 title("% Cumulative Variance");
 %%
@@ -111,7 +102,7 @@ covarAsset = factorLoading*covarFactor*factorLoading' + D;
 port = Portfolio("AssetMean", mean_ret, 'AssetCovar', round(covarAsset,13),...
     'LowerBound', 0, 'UpperBound', 1, ...
     'Budget', 1);
-portfolio_P = estimateFrontierByRisk(port, 0.1/sqrt(252));
+portfolio_P = estimateFrontierByRisk(port, 0.1);
 T2 = table(assetNames', round(portfolio_P,4));
 portfolio_EW = ones(num_assets,1)/num_assets;
 % equity_P = getEquityandMetrices([portfolio_P portfolio_EW], prices_2023, ...
@@ -136,7 +127,7 @@ options = optimoptions('fmincon','Display','iter','Algorithm','sqp',...
     'ConstraintTolerance', 1e-2, 'Display', 'none');
 
 [w, fval] = fmincon(func, x0, [], [], Aeq, beq, lb, ub,...
-    @(x) nonlconPCA(x, 1, factorLoading, covarFactor, D),...
+    @(x) nonlconPCA(x, 0.1, factorLoading, covarFactor, D),...
     options);
 
 sqrt(w'*(factorLoading*covarFactor*factorLoading' + D)*w)
