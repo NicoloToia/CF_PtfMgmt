@@ -49,13 +49,22 @@ for i = 1:2
 end
 % Asset names (assuming they are the column headers in the prices file)
 names = prices.Properties.VariableNames(2:end);
-
+ptfs = [ptfs ones(16,1)/16];
+rets = returns * ptfs;
+figure;
+hold on;
+histogram(rets(:,1), 20)
+histogram(rets(:,2), 20)
+histogram(rets(:,3), 20)
+histogram(rets(:,4), 20)
+histogram(rets(:,5), 20)
+legend('95_H','95_N','99_H','99_N','EW')
 % Display results in the specified format
 disp('===========================================================================')
 disp(' VaR modified sharpe ratio Portfolio (Portfolio Q)')
 disp('===========================================================================')
 weightsTable = array2table(ptfs, "RowNames",names,...
-    "VariableNames",{'95_H','95_N','99_H','99_N'})
+    "VariableNames",{'95_H','95_N','99_H','99_N','EW'})
 [~, table] = getEquityandMetrices(weightsTable, prices_data, "2023");
 figure;
 subplot(2,2,1);

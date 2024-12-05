@@ -98,9 +98,9 @@ end
 % end
 %% Corr plot
 V = corr(returns);
-for i =1:16
-    V(i,i) = 0;
-end
 figure;
 heatmap(V);
+ax = gca; % Get current axes
+ax.XDisplayLabels = names;
+ax.YDisplayLabels = names;
 colormap summer;
