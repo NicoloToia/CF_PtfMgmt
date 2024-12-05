@@ -4,12 +4,13 @@ function Output_struct = resampling_method(Ptf, name_ptf, flag)
     % using the resampling method.
     %
     % INPUTS:
-    % Ptf: portfolio object
-    % name_ptf: the name of the portfolio
-    % flag: 0 for minimum risk portfolio, 1 for maximum Sharpe ratio portfolio
+    % Ptf:          Portfolio object
+    % name_ptf:     The name of the portfolio
+    % flag:         0 for minimum risk portfolio
+    %               1 for maximum Sharpe ratio portfolio
     %
     % OUTPUT:
-    % Output_struct: a struct containing the portfolio weights,
+    % Output_struct: A struct containing the portfolio weights,
     %                expected return, volatility, and Sharpe ratio
 
     % fix the seed for reproducibility between the portfolios
@@ -64,9 +65,9 @@ function Output_struct = resampling_method(Ptf, name_ptf, flag)
 
         % Build a struct for the output
         Output_struct = struct('Volatility', minRisk_Rsim, 'Weights', minRiskWgt_Rsim,...
-            'Return', minRiskRet_Rsim, 'Sharpe_Ratio', minRiskSR_Rsim);
-        Output_struct.Name = name_ptf;
-        Output_struct.Ptf = Ptf;
+            'Return', minRiskRet_Rsim, 'Sharpe_Ratio', minRiskSR_Rsim, 'Name', name_ptf, 'Ptf', Ptf);
+        % Output_struct.Name = name_ptf;
+        % Output_struct.Ptf = Ptf;
         
     elseif flag == 1
 
@@ -82,9 +83,9 @@ function Output_struct = resampling_method(Ptf, name_ptf, flag)
 
         % Build a struct for the output
         Output_struct = struct('Volatility', maxSharpeRisk_Rsim, 'Weights', maxSharpeWgt_Rsim,...
-            'Return', maxSharpeRet_Rsim, 'Sharpe_Ratio', maxSharpeSR_Rsim);
-        Output_struct.Name = name_ptf;
-        Output_struct.Ptf = Ptf;
+            'Return', maxSharpeRet_Rsim, 'Sharpe_Ratio', maxSharpeSR_Rsim, 'Name', name_ptf, 'Ptf', Ptf);
+        % Output_struct.Name = name_ptf;
+        % Output_struct.Ptf = Ptf;
 
     else
         % Error message, not valid flag

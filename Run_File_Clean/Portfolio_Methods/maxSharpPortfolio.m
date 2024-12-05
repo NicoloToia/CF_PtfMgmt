@@ -2,14 +2,15 @@ function Output_struct = maxSharpPortfolio(Ptf, name_ptf)
 
     % Compute the Maximum Sharpe Ratio Portfolio
     % INPUTS
-    % Ptf: Portfolio object
-    % name_ptf: name of the portfolio
+    % Ptf:          Portfolio object
+    % name_ptf:     Name of the portfolio
     %
     % OUTPUTS
-    % Output_struct: a struct containing the volatility, weights, return,
-    %                   and Sharpe ratio of the maximum Sharpe ratio portfolio
+    % Output_struct: A struct containing the volatility, weights, return, 
+    %                Sharpe ratio, name and object protfolio of the maximum
+    %                Sharpe ratio portfolio
 
-    % find maximum Sharpe ratio portfolio (Maximum Sharpe Ratio Portfolio)
+    % Find maximum Sharpe ratio portfolio (Maximum Sharpe Ratio Portfolio)
     maxSharpeWgt_Ptf = estimateMaxSharpeRatio(Ptf);
     maxSharpeRet_Ptf = Ptf.AssetMean' * maxSharpeWgt_Ptf;
     maxSharpeRisk_Ptf = sqrt(maxSharpeWgt_Ptf' * Ptf.AssetCovar * maxSharpeWgt_Ptf);
@@ -20,8 +21,8 @@ function Output_struct = maxSharpPortfolio(Ptf, name_ptf)
 
     % Build a struct for the output
     Output_struct = struct('Volatility', maxSharpeRisk_Ptf, 'Weights', maxSharpeWgt_Ptf,...
-        'Return', maxSharpeRet_Ptf, 'Sharpe_Ratio', maxSharpeSR_Ptf );
-    Output_struct.Name = name_ptf;
-    Output_struct.Ptf = Ptf;
+        'Return', maxSharpeRet_Ptf, 'Sharpe_Ratio', maxSharpeSR_Ptf, 'Name', name_ptf, 'Ptf', Ptf);
+    % Output_struct.Name = name_ptf;
+    % Output_struct.Ptf = Ptf;
     
 end

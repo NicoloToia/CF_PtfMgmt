@@ -1,11 +1,12 @@
 function [] = plotData(returns, prices, names)
 % This function plots the returns and prices of the assets in the dataset
-% and performs the Shapiro-Wilk and Shapiro-Francia normality tests.
+% and performs the Shapiro-Wilk/Shapiro-Francia normality test and the
+% Kolmogorov-Smirnov Test.
 %
 % INPUTS:
-% returns: returns of the assets
-% prices: prices of the assets
-% names: names of the assets
+% returns:  Log returns of the assets
+% prices:   Prices of the assets
+% names:    Names of the assets
 
 cyclical = ["ConsumerDiscretionary", "Financials", "Materials", "RealEstate", "Industrials"];
 defensive = ["ConsumerStaples", "Utilities", "HealthCare"];

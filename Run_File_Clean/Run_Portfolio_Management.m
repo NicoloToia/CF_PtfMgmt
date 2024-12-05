@@ -111,7 +111,7 @@ P1.RiskFreeRate = risk_free_rate;
 P1.AInequality = const_std.Aineq;
 P1.bInequality = const_std.bineq;
 
-% estimate efficient frontier, via object method and 100 Ptfoints
+% estimate efficient frontier, via object method and 100 Ptf points
 pwgt1 = estimateFrontier(P1, 100);
 % estimate portfolio moments
 [pf_risk_Ptf_1, pf_Retn_Ptf_1] = estimatePortMoments(P1, pwgt1);
@@ -161,7 +161,7 @@ P2.RiskFreeRate = risk_free_rate;
 P2.AInequality = const_spec.Aineq;
 P2.bInequality = const_spec.bineq;
 
-% estimate efficient frontier, via object method and 100 Ptfoints
+% estimate efficient frontier, via object method and 100 Ptf points
 pwgt2 = estimateFrontier(P2, 100);
 % estimate portfolio moments
 [pf_risk_Ptf_2, pf_Retn_Ptf_2] = estimatePortMoments(P2, pwgt2);
@@ -178,9 +178,9 @@ Portfolio_D = maxSharpPortfolio(P2, 'Max sharpe ratio Portfolio with constrints 
 %% 3. Efficient Frontier and Resampling Method
 
 % Compute the frontiers in step 1 and 2 using the resampling method in
-%  order to obtain 2 robust frontier. For each frontier save the Minimum
-%  Variance Portfolios, named Portfolios E and F, and the Maximum
-%  Sharpe Ratio Portfolios, named Portfolios G and H, of the frontiers.
+% order to obtain 2 robust frontier. For each frontier save the Minimum
+% Variance Portfolios, named Portfolios E and F, and the Maximum
+% Sharpe Ratio Portfolios, named Portfolios G and H, of the frontiers.
 
 % Set the flag for Minimum Variance Portfolio or Maximum Sharpe Ratio Portfolio
 % 0: Minimum Variance Portfolio
