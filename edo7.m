@@ -11,7 +11,7 @@ prices_data = prices{:, 2:end};
 start_date = datetime(2023,1,1);
 end_date = datetime(2023,12,31);
 prices_2023 = prices_data(dates >= start_date & dates <= end_date, :);
-returns = tick2ret(prices_2023,'Method','continuous');
+returns = tick2ret(prices_2023);
 % Compute expected returns (mean of daily returns)
 mean_ret = mean(returns);
 % Compute the variance-covariance matrix

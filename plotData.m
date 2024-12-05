@@ -74,9 +74,10 @@ end
 % end
 %% Corr plot
 V = corr(returns_2023);
-for i =1:16
-    V(i,i) = 0;
-end
 figure;
 heatmap(V);
+% Set custom x-axis and y-axis labels
+ax = gca; % Get current axes
+ax.XDisplayLabels = names; % Set x-axis labels
+ax.YDisplayLabels = names; % Set y-axis labels
 colormap summer;
