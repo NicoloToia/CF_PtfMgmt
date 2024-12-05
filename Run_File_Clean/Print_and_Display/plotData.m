@@ -48,18 +48,33 @@ for i = 1:16
     title(names(i));
 end
 %% Shapiro-Wilk and Shapiro-Francia normality tests
-fprintf('\nlegend \nname --> H0: accept normality \nname --> H1: reject normality \n\n')
-H = [];
-pValue = [];
-W = [];
+% Variables declarations
+H_SW = zeros(size(returns,2), 1); pValue_SW = zeros(size(returns,2), 1); W_SW = zeros(size(returns,2), 1);
+H_KS = zeros(size(returns,2), 1); pValue_KS = zeros(size(returns,2), 1);
+df = 50; % degrees of freedom
+disp('====================================================================================================')
+fprintf('SW-test for normality and K-S test fot t-Student distribution with %d degrees of freedom\n', df)
+disp('====================================================================================================')
+fprintf('Legend: \n- name --> H = 0: accept normality \n- name --> H = 1: reject normality \n\n')
+
 for i = 1 : size(returns,2)
     % swtest performs the Shapiro-Francia test when the series is Leptokurtik (kurtosis > 3), 
     % otherwise it performs the Shapiro-Wilk test.
-    [H(i), pValue(i), W(i)] = swtest(returns(:,i)); %%% SI PUO CAMBIARE ALPHA E CAPIRE CON CHE ALPHA SI ACCETTA L'IPOTESI NULLA NORMALE
-    %%% ADD THE TTEST TO COMPARE THE TWO TESTS, AND SHOW THA ìT FINANCIAL DATA HAVE HEAVY TAILS
-    fprintf('%s --> H%d\n', names{i}, H(i));
+    [H_SW(i), pValue_SW(i), W_SW(i)] = swtest(returns(:,i));
+
+    % Kolmogorov-Smirnov Test (K-S Test):
+    test_cdf = makedist('tlocationscale','mu',mean(returns(:,i)),'sigma',std(returns(:,i)),'nu',df);
+    [H_KS(i), pValue_KS(i)] = kstest(returns(:,i), 'CDF', test_cdf);
 end
+
+% Create Table
+tests_resultTable = table(string(names'), H_SW, pValue_SW, H_KS, pValue_KS, ...
+    'VariableNames', {'Asset_Name', 'H_SW', 'pValue_SW', 'H_KS', 'pValue_KS'});
+
+% Display Table
+disp(tests_resultTable);
 fprintf('\n')
+
 %% Histograms
 figure;
 for i = 1:16

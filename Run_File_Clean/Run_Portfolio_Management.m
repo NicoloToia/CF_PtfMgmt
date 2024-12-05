@@ -19,7 +19,7 @@ rng(42); % For reproducibility
 tic
 
 % Set the flag for plotting the data analysis, 1: plot, 0: do not plot
-flag_plot = 0;
+flag_plot = 1;
 
 % Add paths
 addpath('Data')
@@ -30,9 +30,11 @@ addpath('Analysis_tools')
 %% PART A 
 
 % Load data from Excel files
+warning('off', 'MATLAB:table:ModifiedAndSavedVarnames'); % Suppress the warning on variables' names
 prices = readtable('prices.xlsx');
 capitalizations = readtable('capitalizations.xlsx');
 caps = capitalizations{1,2:end};
+warning('on', 'MATLAB:table:ModifiedAndSavedVarnames'); % Re-enable the warning on variables' names
 
 % Names
 names = capitalizations.Properties.VariableNames(2:end);
