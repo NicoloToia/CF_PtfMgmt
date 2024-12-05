@@ -12,7 +12,6 @@ prices_data = prices{:, 2:end};
 start_date = datetime(2023,1,1);
 end_date = datetime(2023,12,31);
 prices_2023 = prices_data(dates >= start_date & dates <= end_date, :);
-prices_2024 = prices_data(dates > end_date, :);
 returns = tick2ret(prices_2023,'Method','continuous');
 % Compute expected returns (mean of daily returns)
 mean_ret = mean(returns);
@@ -49,5 +48,4 @@ disp(' VaR modified sharpe ratio Portfolio (Portfolio Q)')
 disp('===========================================================================')
 weightsTable = array2table(round(ptfs,4), "RowNames",names,...
     "VariableNames",{'95_N','EW','Caps'})
-[~, table] = getEquityandMetrices(weightsTable, prices_2023, "2023")
-[~, table] = getEquityandMetrices(weightsTable, prices_2024, "2024")
+[~, table] = getEquityandMetrices(weightsTable, prices_data, "2023")
