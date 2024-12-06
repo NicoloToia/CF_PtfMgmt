@@ -17,7 +17,11 @@ function [] =  print_portfolio(weights,names,returns,risk,SR,flag)
     disp('Asset Name                Weight')
     disp('-------------------------------------------')
     for i = 1:length(weights)
-        fprintf('%-25s %.4f\n', names{i}, weights(i));
+        if round(weights(i),14) == 0
+            fprintf('%-25s %s\n', names{i}, '-');
+        else
+        fprintf('%-25s %.4f\n', names{i}, round(weights(i),14));
+        end
     end
     disp('-------------------------------------------')
     fprintf('%-25s %.4f\n', 'Expected Return', returns);
