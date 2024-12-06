@@ -84,36 +84,11 @@ mkt.factor = ["Momentum", "Value", "Growth", "Quality", "LowVolatility"];
 % Define the desired order of columns to cluster the data in sectors and factors
 desiredOrder = [mkt.sector.cyclical, mkt.sector.defensive, mkt.sector.sensible, mkt.factor];
 
-% Reorder the prices table
-firstColumnPrices = prices(:, 1);
-remainingColumnsPrices = prices(:, 2:end); 
-
-% Reorder the remaining columns
-existingColumnsPrices = intersect(desiredOrder, remainingColumnsPrices.Properties.VariableNames, 'stable');
-missingColumnsPrices = setdiff(desiredOrder, remainingColumnsPrices.Properties.VariableNames, 'stable');
-
-% Reorder the columns
-remainingColumnsPrices = remainingColumnsPrices(:, desiredOrder);
-% Combine the first column with the reordered columns
-prices = [firstColumnPrices, remainingColumnsPrices];
-
-% Reorder the capitalizations table
-firstColumnCaps = capitalizations(:, 1);
-remainingColumnsCaps = capitalizations(:, 2:end);
-
-% Reorder the remaining columns
-existingColumnsCaps = intersect(desiredOrder, remainingColumnsCaps.Properties.VariableNames, 'stable');
-missingColumnsCaps = setdiff(desiredOrder, remainingColumnsCaps.Properties.VariableNames, 'stable');
-
-% Reorder the columns
-remainingColumnsCaps = remainingColumnsCaps(:, desiredOrder);
-% Combine the first column with the reordered columns
-capitalizations = [firstColumnCaps, remainingColumnsCaps];
-
 % Define a Portfolio object for the All Market
 Ptf_AMkt = Portfolio('AssetList', names);
 sectors = [mkt.sector.sensible, mkt.sector.cyclical, mkt.sector.defensive];
 
+% Define indices for sectors and factors used in the constraints
 sensibleIdx = ismember(Ptf_AMkt.AssetList, mkt.sector.sensible);
 cyclicalIdx = ismember(Ptf_AMkt.AssetList, mkt.sector.cyclical);
 excludeIdx_CS = ismember(Ptf_AMkt.AssetList, "ConsumerStaples");
@@ -170,8 +145,17 @@ Portfolio_A = minRiskPortfolio(P1, pwgt1, pf_risk_Ptf_1, 'Minimum Risk Portfolio
 % Portfolio B: Maximum Sharpe Ratio Portfolio
 Portfolio_B = maxSharpPortfolio(P1, 'Max sharpe ratio Portfolio (B)');
 
-% plot efficient frontier
-% plot(pf_risk_Ptf_1, pf_Retn_Ptf_1)
+% Plot the efficient frontier
+if flag
+    % Plot the efficient frontier
+    portfolios_vector = [Portfolio_A; Portfolio_B];
+    titleEntry = 'Efficient Frontier Under Standard Constraints';
+    legendEntries = {'Efficient Frontier', 'Minimum Variance Portfolio (A)', 'Max sharpe ratio Portfolio (B)'};
+    plotFrontier(pf_risk_Ptf_1, pf_Retn_Ptf_1, portfolios_vector, titleEntry, legendEntries)
+    
+    % Plot the weights for each asset
+    plotFrontierWeights(pf_risk_Ptf_1, pwgt1, names)
+end
 
 %% 2. Efficient Frontier with additional constraints
 
@@ -215,13 +199,25 @@ pwgt2 = estimateFrontier(P2, 100);
 [pf_risk_Ptf_2, pf_Retn_Ptf_2] = estimatePortMoments(P2, pwgt2);
 
 % Portfolio C: Minimum Variance Portfolio with specific constraints
-Portfolio_C = minRiskPortfolio(P2, pwgt2, pf_risk_Ptf_2, 'Minimum risk Portfolio with constrints (C)');
+Portfolio_C = minRiskPortfolio(P2, pwgt2, pf_risk_Ptf_2, 'Minimum risk Portfolio with constraints (C)');
 
 % Portfolio D: Maximum Sharpe Ratio Portfolio with specific constraints
-Portfolio_D = maxSharpPortfolio(P2, 'Max sharpe ratio Portfolio with constrints (D)');
+Portfolio_D = maxSharpPortfolio(P2, 'Max sharpe ratio Portfolio with constraints (D)');
 
-% plot efficient frontier
-% plot(pf_risk_Ptf_2, pf_Retn_Ptf_2)
+% Plot the efficient frontier
+if flag
+    % Plot the efficient frontier
+    risk_frontiers = [pf_risk_Ptf_1 pf_risk_Ptf_2];
+    return_frontiers = [pf_Retn_Ptf_1 pf_Retn_Ptf_2];
+    portfolios_vector = [Portfolio_A; Portfolio_B; Portfolio_C; Portfolio_D];
+    titleEntry = 'Efficient Frontier Under Additonal Constraints';
+    legendEntries = {'Standard Efficient Frontier', 'Efficient Frontier with constraints', 'Minimum Variance Portfolio (A)', 'Max sharpe ratio Portfolio (B)',...
+        'Minimum risk Portfolio with constraints (C)', 'Max sharpe ratio Portfolio with constraints (D)'};
+    plotFrontier(risk_frontiers, return_frontiers, portfolios_vector, titleEntry, legendEntries)
+
+    % Plot the weights for each asset
+    plotFrontierWeights(pf_risk_Ptf_2, pwgt2, names)
+end
 
 %% 3. Efficient Frontier and Resampling Method
 
@@ -247,6 +243,18 @@ Portfolio_G = resampling_method(P1, 'Max sharpe ratio Portfolio with resampling 
 
 % Portfolio H: Maximum Sharpe Ratio Portfolio with resampling and constraints
 Portfolio_H = resampling_method(P2, 'Max sharpe ratio Portfolio with resampling and constraints (H)', flag);
+
+% Plot the efficient frontier
+% if flag
+%     risk_frontiers = [pf_risk_Ptf_1 pf_risk_Ptf_2];
+%     return_frontiers = [pf_Retn_Ptf_1 pf_Retn_Ptf_2];
+%     portfolios_vector = [Portfolio_A; Portfolio_B; Portfolio_C; Portfolio_D; Portfolio_E; Portfolio_F; Portfolio_G; Portfolio_H];
+%     titleEntry = 'Efficient Frontier Under Additonal Constraints';
+%     legendEntries = {'Standard Efficient Frontier', 'Efficient Frontier with constraints', 'Minimum Variance Portfolio (A)', 'Max sharpe ratio Portfolio (B)',...
+%         'Minimum risk Portfolio with constraints (C)', 'Max sharpe ratio Portfolio with constraints (D)', 'Minimum risk Portfolio with resampling (E)',...
+%         'Minimum risk Portfolio with resampling and constraints (F)', 'Max sharpe ratio Portfolio with resampling (G)', 'Max sharpe ratio Portfolio with resampling and constraints (H)'};
+%     plotFrontier(risk_frontiers, return_frontiers, portfolios_vector, titleEntry, legendEntries)
+% end
 
 %% 4. Black-Litterman Model
 
@@ -345,6 +353,17 @@ Portfolio_M = Max_Diversified_Portfolio(P4, const, 'Max diversified Portfolio (M
 % Portfolio N: Maximum Entropy Portfolio
 Portfolio_N = Max_Entropy_Portfolio(P4, const, 'Max Entropy Portfolio (N)');
 
+% Plot the efficient frontier
+% if flag
+%     risk_frontiers = [pf_risk_Ptf_1 pf_risk_Ptf_2];
+%     return_frontiers = [pf_Retn_Ptf_1 pf_Retn_Ptf_2];
+%     portfolios_vector = [Portfolio_A; Portfolio_B; Portfolio_C; Portfolio_D; Portfolio_M; Portfolio_N];
+%     titleEntry = 'Efficient Frontier Under Additonal Constraints';
+%     legendEntries = {'Standard Efficient Frontier', 'Efficient Frontier with constraints', 'Minimum Variance Portfolio (A)', 'Max sharpe ratio Portfolio (B)',...
+%         'Minimum risk Portfolio with constraints (C)', 'Max sharpe ratio Portfolio with constraints (D)', 'Max diversified Portfolio (M)', 'Max Entropy Portfolio (N)'};
+%     plotFrontier(risk_frontiers, return_frontiers, portfolios_vector, titleEntry, legendEntries)
+% end
+
 %% 6. 
 
 % Compute the portfolio (Portfolio P), using the Principal Component
@@ -363,8 +382,7 @@ P5.Name = 'Portfolio with PCA';
 P5.RiskFreeRate = risk_free_rate;
 P5.NumAssets = num_assets;
 
-Portfolio_P = PCA_Ptf(P5, returns_2023, "Portfolio with PCA");
-
+Portfolio_P = PCA_Ptf(P5, returns_2023, 'Portfolio with PCA (P)');
 
 %% 7.
 
@@ -434,8 +452,8 @@ disp('==========================================================================
 disp('                                    Portfolio Weights Table                                   ')
 disp('==============================================================================================')
 disp(weightsTable)
-disp_weights(weightsTable)
-%%
+disp_weights(weightsTable, desiredOrder, mkt)
+
 % Display the metrics table
 disp('==============================================================================================')
 disp('                                    Portfolio Metrics Table                                   ')
