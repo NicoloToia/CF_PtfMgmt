@@ -135,10 +135,10 @@ options = optimoptions('fmincon','Display','iter','Algorithm','sqp',...
     @(x) nonlconPCA(x, 0.7, factorLoading, covarFactor, D),...
     options);
 
-ptfs = [portfolio_P ones(16,1)/16 caps'/sum(caps)];
+ptfs = [w ones(16,1)/16 caps'/sum(caps)];
 % Display results in the specified format
 disp('===========================================================================')
-disp(' PCA Portfolio (Portfolio P)')
+disp(' PC Portfolio (Portfolio P)')
 disp('===========================================================================')
 weightsTable = array2table(round(ptfs,4), "RowNames",assetNames,...
     "VariableNames",{'PCA','EW','Caps'})
