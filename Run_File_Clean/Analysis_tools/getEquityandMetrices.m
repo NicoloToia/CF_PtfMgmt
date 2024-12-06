@@ -17,7 +17,7 @@ function [equities,metricesTable] = getEquityandMetrices(Ws, prices, Title)
 hexColors = {
     '#0000EE', '#00EE00', '#EE0000', '#EE00EE', '#EEBE00', ...
     '#F78536', '#000000', '#FFCF83', '#CF56A1', '#A66E38', ...
-    '#ADD8E6', '#FEBBCC', '#FF0060', '#8B9A46'};
+    '#ADD8E6', '#FEBBCC', '#FF0060', '#8B9A46', '#FFD744'};
 
 % Convert hexadecimal codes to RGB triplets
 colors = hexToRGB(hexColors);
