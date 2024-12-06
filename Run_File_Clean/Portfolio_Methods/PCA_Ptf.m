@@ -81,7 +81,7 @@ function Output_struct = PCA_Ptf(Ptf, ret, name_ptf)
 
     % set the portfolio moments
     Ptf.AssetMean = mean_ret;
-    Ptf.AssetCovar = round(covarAsset,13);
+    Ptf.AssetCovar = round(covarAsset,10);
 
     weights = estimateFrontierByRisk(Ptf, 0.7);
 
