@@ -31,9 +31,13 @@ function Output_struct = resampling_method(Ptf, name_ptf, flag)
 
     for n = 1:N
         
-        resampledReturns = mvnrnd(Ptf.AssetMean, Ptf.AssetCovar, 252); % 252 mi suggerisce chat per resaplare i rendimenti giornalieri i.e.  252 giorni
-        New_mean_returns = mean(resampledReturns)';               % altrimenti mi dice che non ho un resampling completo ma non sono convinto
-        NewCov = cov(resampledReturns);
+        % resampledReturns = mvnrnd(Ptf.AssetMean, Ptf.AssetCovar, 252); % DA CONTROLAER
+        % New_mean_returns = mean(resampledReturns)';
+        % NewCov = cov(resampledReturns);
+
+        resampledReturns = mvnrnd(Ptf.AssetMean, Ptf.AssetCovar); % da fare check
+        New_mean_returns =resampledReturns;               
+        NewCov = iwishrnd(Ptf.AssetCovar,num_assets);
 
         Ptf_sim = setAssetMoments(Ptf, New_mean_returns, NewCov);
 
