@@ -52,6 +52,7 @@ function [Output_struct, Ptf] = BlackLitterman(Ptf, returns, caps, lambda, views
        (P' * (Omega \ q) + (cov_market \ mu_market));
     % covBL = inv(P'*inv(Omega)*P + inv(cov_market));
     covBL = (P' * (Omega \ P) + cov_market \ eye(size(cov_market))) \ eye(size(P, 2));
+    covBL = round(covBL, 13);
 
 
     % Set the moments in the Portfolio object
