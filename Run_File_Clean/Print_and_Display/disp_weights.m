@@ -26,6 +26,20 @@ function [] = disp_weights(table, desiredOrder, market)
     n_ptfs = size(ws,2);
     pie_weights_fig = figure;
     set(pie_weights_fig, 'Units', 'normalized', 'OuterPosition', [0 0 1 1]);
+    [~, order] = ismember(desiredOrder, asset_names);
+    ws = ws(order, :); % Reorder rows of weights matrix
+    colors = colors(order, :); % Reorder colors accordingly
+    asset_names = asset_names(order); % Reorder asset names
+
+    % % Define groups for sectors and factors
+    [group_names, group_members] = build_groups(market);
+
+    group_colors = [
+        mean(colors(ismember(asset_names, group_members{1}), :), 1); % Cyclical
+        mean(colors(ismember(asset_names, group_members{2}), :), 1); % Defensive
+        mean(colors(ismember(asset_names, group_members{3}), :), 1); % Sensitive
+        mean(colors(ismember(asset_names, group_members{4}), :), 1)  % Factors
+    ];
     for i=1:n_ptfs
         subplot(2,round(n_ptfs/2),i)
         labels = [];
@@ -51,23 +65,6 @@ function [] = disp_weights(table, desiredOrder, market)
     sgtitle("Portfolio Weights");
 
     %% Stacked bar plot
-
-    % Reorder assets based on the desired order
-    [~, order] = ismember(desiredOrder, asset_names);
-    ws = ws(order, :); % Reorder rows of weights matrix
-    colors = colors(order, :); % Reorder colors accordingly
-    asset_names = asset_names(order); % Reorder asset names
-
-    % % Define groups for sectors and factors
-    [group_names, group_members] = build_groups(market);
-
-    group_colors = [
-        mean(colors(ismember(asset_names, group_members{1}), :), 1); % Cyclical
-        mean(colors(ismember(asset_names, group_members{2}), :), 1); % Defensive
-        mean(colors(ismember(asset_names, group_members{3}), :), 1); % Sensitive
-        mean(colors(ismember(asset_names, group_members{4}), :), 1)  % Factors
-    ];
-
     % Create stacked bar plot
     figure;
     b = bar(ws', 'stacked'); % Create stacked bar plot

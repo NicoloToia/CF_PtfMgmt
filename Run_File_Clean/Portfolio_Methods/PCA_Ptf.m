@@ -103,8 +103,4 @@ function Output_struct = PCA_Ptf(Ptf, ret, name_ptf)
     Output_struct.Name = name_ptf;
     Output_struct.Ptf = Ptf;
 
-    % plot the pie chart of the weights
-    figure()
-    pie(weights (weights >= 0.01), Ptf.AssetList(weights >= 0.01))
-
 end
