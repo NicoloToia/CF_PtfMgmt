@@ -100,7 +100,7 @@ Portfolio_EW = struct();
 Portfolio_EW.Weights = ones(num_assets,1)/num_assets;
 Portfolio_EW.Return = mean_returns' * Portfolio_EW.Weights;
 Portfolio_EW.Volatility = ...
-    Portfolio_EW.Weights' * cov_matrix * Portfolio_EW.Weights;
+    sqrt(Portfolio_EW.Weights' * cov_matrix * Portfolio_EW.Weights);
 Portfolio_EW.Sharpe_Ratio = (Portfolio_EW.Return - risk_free_rate)...
     / Portfolio_EW.Volatility;
 %% Caps Portfolio
@@ -108,7 +108,7 @@ Portfolio_Caps = struct();
 Portfolio_Caps.Weights = caps' ./ sum(caps);
 Portfolio_Caps.Return = mean_returns' * Portfolio_Caps.Weights;
 Portfolio_Caps.Volatility = ...
-    Portfolio_Caps.Weights' * cov_matrix * Portfolio_Caps.Weights;
+    sqrt(Portfolio_Caps.Weights' * cov_matrix * Portfolio_Caps.Weights);
 Portfolio_Caps.Sharpe_Ratio = (Portfolio_Caps.Return - risk_free_rate)...
     / Portfolio_Caps.Volatility;
 

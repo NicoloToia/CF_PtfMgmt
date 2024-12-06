@@ -33,9 +33,6 @@ function Output_struct = PCA_Ptf(Ptf, ret, name_ptf)
     explainedVar = latent./TotVar;
     CumExplainedVar = cumsum(explainedVar);
     k_hat = find(CumExplainedVar >= .9, 1);
-    
-    % display the value of k that explains 90% of the variance (k = 6)
-    disp(['The number of factors that explains more than 90% of the cumulative variance is: ', num2str(k_hat)]);
 
     % call the plot function for the pca analysis
     figure();
@@ -97,6 +94,8 @@ function Output_struct = PCA_Ptf(Ptf, ret, name_ptf)
     % Display the minimum risk portfolio
     print_portfolio(weights, Ptf.AssetList, returns, volatility, sharpe_ratio, name_ptf);
 
+     % display the value of k that explains 90% of the variance (k = 6)
+    disp(['The number of factors that explains more than 90% of the cumulative variance is: ', num2str(k_hat)]);
 
     Output_struct = struct('Weights', weights, 'Volatility', volatility,...
                            'Return', returns, 'Sharpe_Ratio', sharpe_ratio);
