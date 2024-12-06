@@ -111,8 +111,10 @@ Portfolio_A = minRiskPortfolio(P1, pwgt1, pf_risk_Ptf_1, 'Minimum Risk Portfolio
 % Portfolio B: Maximum Sharpe Ratio Portfolio
 Portfolio_B = maxSharpPortfolio(P1, 'Max sharpe ratio Portfolio (B)');
 
-% plot efficient frontier
+%% plot efficient frontier
 % plot(pf_risk_Ptf_1, pf_Retn_Ptf_1)
+portfolios_vector = [Portfolio_A.Volatility Portfolio_A.Return; Portfolio_B.Volatility Portfolio_B.Return];
+plotFrontier(pf_risk_Ptf_1, pf_Retn_Ptf_1, portfolios_vector, 'Efficient Frontier Under Standard Constraints', ['Efficient Frontier', 'Minimum Risk Portfolio (A)', 'Max sharpe ratio Portfolio (B)'])
 
 %% 2. Efficient Frontier with additional constraints
 
@@ -272,10 +274,13 @@ const.A = -cyclicalIdx;
 const.b = -0.2;
 
 % Weights of the benchmark portfolio (capitalization weighted portfolio)
-cap_wghtd_ptf = caps / sum(caps);
+% cap_wghtd_ptf = caps / sum(caps);
 
 % set the non-linear constraint
-const.nonlinconstr =  @(weights) customAbsDiffConstraint(weights, cap_wghtd_ptf); % Non linear constraint function
+% const.nonlinconstr =  @(weights) customAbsDiffConstraint(weights, cap_wghtd_ptf); % Non linear constraint function
+
+% set the non-linear constraint using the weights of the benchmark portfolio (capitalization weighted portfolio)
+const.nonlinconstr =  @(weights) customAbsDiffConstraint(weights, Portfolio_Caps.Weights); % Non linear constraint function
 
 % Build a portfolio object
 P4 = Portfolio('AssetList', names);

@@ -3,9 +3,9 @@ function Output_struct = Max_Diversified_Portfolio(Ptf, const, name_ptf)
         % This function computes the Maximum Diversified Portfolio under
         % the assigned constraints.
         % INPUTS
-        % Ptf: Portfolio object
-        % const: structure with the constraints
-        % name_ptf: name of the portfolio
+        % Ptf:      Portfolio object
+        % const:    Structure with the constraints
+        % name_ptf: Name of the portfolio
         %
         % OUTPUTS
         % Output_struct: a struct containing the volatility, weights, return,
