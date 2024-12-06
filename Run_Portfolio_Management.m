@@ -18,7 +18,7 @@ rng(42); % For reproducibility
 % start timer
 tic
 
-flag_plot = 0;
+flag_plot = 1;
 %% PART A 
 
 % Load data from Excel files

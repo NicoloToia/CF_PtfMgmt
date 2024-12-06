@@ -1,7 +1,7 @@
 clc
 clear all
 close all
-warning off
+warning on
 % Load data (Assumes you have 'capitalizations.xlsx' and 'prices.xlsx')
 capitalizations = readtable('capitalizations.xlsx', 'Sheet', 'Sheet1');
 caps = capitalizations{1,2:end};
@@ -25,7 +25,6 @@ initial_weights = capitalization_values / sum(capitalization_values);
 risk_free_rate = 0;
 % Confidence level for VaR
 confidence_level = .95;
-VaR_H = @(x) - quantile(returns * x, 1 - confidence_level);
 VaR_N = @(x) - (mean_ret * x - ...
     sqrt(x' * cov_matrix * x) * norminv(confidence_level));
 % Define the objective function (negative VaR-modified Sharpe Ratio)
@@ -51,3 +50,4 @@ weightsTable = array2table(round(ptfs,4), "RowNames",names,...
     "VariableNames",{'95_N','EW','Caps'})
 [~, table] = getEquityandMetrices(weightsTable, prices_2023, "2023")
 [~, table] = getEquityandMetrices(weightsTable, prices_2024, "2024")
+
