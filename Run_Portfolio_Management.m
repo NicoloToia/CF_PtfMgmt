@@ -111,10 +111,19 @@ Portfolio_A = minRiskPortfolio(P1, pwgt1, pf_risk_Ptf_1, 'Minimum Risk Portfolio
 % Portfolio B: Maximum Sharpe Ratio Portfolio
 Portfolio_B = maxSharpPortfolio(P1, 'Max sharpe ratio Portfolio (B)');
 
-%% plot efficient frontier
-% plot(pf_risk_Ptf_1, pf_Retn_Ptf_1)
-portfolios_vector = [Portfolio_A.Volatility Portfolio_A.Return; Portfolio_B.Volatility Portfolio_B.Return];
-plotFrontier(pf_risk_Ptf_1, pf_Retn_Ptf_1, portfolios_vector, 'Efficient Frontier Under Standard Constraints', ['Efficient Frontier', 'Minimum Risk Portfolio (A)', 'Max sharpe ratio Portfolio (B)'])
+%%
+if flag
+    % Plot the efficient frontier
+    portfolios_vector = [Portfolio_A; Portfolio_B];
+    titleEntry = 'Efficient Frontier Under Standard Constraints';
+    legendEntries = {'Efficient Frontier', 'Minimum Variance Portfolio (A)', 'Max sharpe ratio Portfolio (B)'};
+    plotFrontier(pf_risk_Ptf_1, pf_Retn_Ptf_1, portfolios_vector, titleEntry, legendEntries)
+    
+    % Plot the weights for each asset
+    plotFrontierWeights(pf_risk_Ptf_1, pwgt1, names)
+end
+
+
 
 %% 2. Efficient Frontier with additional constraints
 
@@ -158,14 +167,25 @@ pwgt2 = estimateFrontier(P2, 100);
 [pf_risk_Ptf_2, pf_Retn_Ptf_2] = estimatePortMoments(P2, pwgt2);
 
 % Portfolio C: Minimum Variance Portfolio with specific constraints
-Portfolio_C = minRiskPortfolio(P2, pwgt2, pf_risk_Ptf_2, 'Minimum risk Portfolio with constrints (C)');
+Portfolio_C = minRiskPortfolio(P2, pwgt2, pf_risk_Ptf_2, 'Minimum risk Portfolio with constraints (C)');
 
 % Portfolio D: Maximum Sharpe Ratio Portfolio with specific constraints
-Portfolio_D = maxSharpPortfolio(P2, 'Max sharpe ratio Portfolio with constrints (D)');
+Portfolio_D = maxSharpPortfolio(P2, 'Max sharpe ratio Portfolio with constraints (D)');
 
-% plot efficient frontier
-% plot(pf_risk_Ptf_2, pf_Retn_Ptf_2)
+%% 
+if flag
+    % Plot the efficient frontier
+    risk_frontiers = [pf_risk_Ptf_1 pf_risk_Ptf_2];
+    return_frontiers = [pf_Retn_Ptf_1 pf_Retn_Ptf_2];
+    portfolios_vector = [Portfolio_A; Portfolio_B; Portfolio_C; Portfolio_D];
+    titleEntry = 'Efficient Frontier Under Additonal Constraints';
+    legendEntries = {'Standard Efficient Frontier', 'Efficient Frontier with constraints', 'Minimum Variance Portfolio (A)', 'Max sharpe ratio Portfolio (B)',...
+        'Minimum risk Portfolio with constraints (C)', 'Max sharpe ratio Portfolio with constraints (D)'};
+    plotFrontier(risk_frontiers, return_frontiers, portfolios_vector, titleEntry, legendEntries)
 
+    % Plot the weights for each asset
+    plotFrontierWeights(pf_risk_Ptf_2, pwgt2, names)
+end
 %% 3. Efficient Frontier and Resampling Method
 
 % Compute the frontiers in step 1 and 2 using the resampling method in
@@ -191,6 +211,17 @@ Portfolio_G = resampling_method(P1, 'Max sharpe ratio Portfolio with resampling 
 % Portfolio H: Maximum Sharpe Ratio Portfolio with resampling and constraints
 Portfolio_H = resampling_method(P2, 'Max sharpe ratio Portfolio with resampling and constraints (H)', flag);
 
+%% plot efficient frontier
+% if flag
+%     risk_frontiers = [pf_risk_Ptf_1 pf_risk_Ptf_2];
+%     return_frontiers = [pf_Retn_Ptf_1 pf_Retn_Ptf_2];
+%     portfolios_vector = [Portfolio_A; Portfolio_B; Portfolio_C; Portfolio_D; Portfolio_E; Portfolio_F; Portfolio_G; Portfolio_H];
+%     titleEntry = 'Efficient Frontier Under Additonal Constraints';
+%     legendEntries = {'Standard Efficient Frontier', 'Efficient Frontier with constraints', 'Minimum Variance Portfolio (A)', 'Max sharpe ratio Portfolio (B)',...
+%         'Minimum risk Portfolio with constraints (C)', 'Max sharpe ratio Portfolio with constraints (D)', 'Minimum risk Portfolio with resampling (E)',...
+%         'Minimum risk Portfolio with resampling and constraints (F)', 'Max sharpe ratio Portfolio with resampling (G)', 'Max sharpe ratio Portfolio with resampling and constraints (H)'};
+%     plotFrontier(risk_frontiers, return_frontiers, portfolios_vector, titleEntry, legendEntries)
+% end
 %% 4. Black-Litterman Model
 
 % Compute the portfolio frontier, under standard constraints, using the
@@ -249,6 +280,8 @@ flag = 0;
 flag = 1;
 [Portfolio_L, P3] = BlackLitterman_2(P3, returns_lnr, caps, lambda, [view1, view2], 'Maximum Sharpe Ratio Portfolio with Black Litterman (L)', flag);
 
+
+
 %% 5.  Compute the Maximum Diversified Portfolio and the Maximum Entropy (in asset volatility) Portfolio
 
 % Compute the Maximum Diversified Portfolio (Portfolio M) and the
@@ -296,6 +329,16 @@ Portfolio_M = Max_Diversified_Portfolio(P4, const, 'Max diversified Portfolio (M
 % Portfolio N: Maximum Entropy Portfolio
 Portfolio_N = Max_Entropy_Portfolio(P4, const, 'Max Entropy Portfolio (N)');
 
+%% plot efficient frontier
+% if flag
+%     risk_frontiers = [pf_risk_Ptf_1 pf_risk_Ptf_2];
+%     return_frontiers = [pf_Retn_Ptf_1 pf_Retn_Ptf_2];
+%     portfolios_vector = [Portfolio_A; Portfolio_B; Portfolio_C; Portfolio_D; Portfolio_M; Portfolio_N];
+%     titleEntry = 'Efficient Frontier Under Additonal Constraints';
+%     legendEntries = {'Standard Efficient Frontier', 'Efficient Frontier with constraints', 'Minimum Variance Portfolio (A)', 'Max sharpe ratio Portfolio (B)',...
+%         'Minimum risk Portfolio with constraints (C)', 'Max sharpe ratio Portfolio with constraints (D)', 'Max diversified Portfolio (M)', 'Max Entropy Portfolio (N)'};
+%     plotFrontier(risk_frontiers, return_frontiers, portfolios_vector, titleEntry, legendEntries)
+% end
 %% 6. 
 
 % Compute the portfolio (Portfolio P), using the Principal Component
