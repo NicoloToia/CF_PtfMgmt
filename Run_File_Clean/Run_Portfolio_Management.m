@@ -81,6 +81,35 @@ mkt.sector.sensible = ["Energy", "InformationTechnology", "CommunicationServices
 % Define factors
 mkt.factor = ["Momentum", "Value", "Growth", "Quality", "LowVolatility"];
 
+% Define the desired order of columns to cluster the data in sectors and factors
+desiredOrder = [mkt.sector.cyclical, mkt.sector.defensive, mkt.sector.sensible, mkt.factor];
+
+% Reorder the prices table
+firstColumnPrices = prices(:, 1);
+remainingColumnsPrices = prices(:, 2:end); 
+
+% Reorder the remaining columns
+existingColumnsPrices = intersect(desiredOrder, remainingColumnsPrices.Properties.VariableNames, 'stable');
+missingColumnsPrices = setdiff(desiredOrder, remainingColumnsPrices.Properties.VariableNames, 'stable');
+
+% Reorder the columns
+remainingColumnsPrices = remainingColumnsPrices(:, desiredOrder);
+% Combine the first column with the reordered columns
+prices = [firstColumnPrices, remainingColumnsPrices];
+
+% Reorder the capitalizations table
+firstColumnCaps = capitalizations(:, 1);
+remainingColumnsCaps = capitalizations(:, 2:end);
+
+% Reorder the remaining columns
+existingColumnsCaps = intersect(desiredOrder, remainingColumnsCaps.Properties.VariableNames, 'stable');
+missingColumnsCaps = setdiff(desiredOrder, remainingColumnsCaps.Properties.VariableNames, 'stable');
+
+% Reorder the columns
+remainingColumnsCaps = remainingColumnsCaps(:, desiredOrder);
+% Combine the first column with the reordered columns
+capitalizations = [firstColumnCaps, remainingColumnsCaps];
+
 % Define a Portfolio object for the All Market
 Ptf_AMkt = Portfolio('AssetList', names);
 sectors = [mkt.sector.sensible, mkt.sector.cyclical, mkt.sector.defensive];
@@ -299,11 +328,8 @@ const.beq = 1;
 const.A = -cyclicalIdx;
 const.b = -0.2;
 
-% Weights of the benchmark portfolio (capitalization weighted portfolio)
-cap_wghtd_ptf = caps / sum(caps);
-
-% set the non-linear constraint
-const.nonlinconstr =  @(weights) customAbsDiffConstraint(weights, cap_wghtd_ptf); % Non linear constraint function
+% set the non-linear constraint using the weights of the benchmark portfolio (capitalization weighted portfolio)
+const.nonlinconstr =  @(weights) customAbsDiffConstraint(weights, Portfolio_Caps.Weights); % Non linear constraint function
 
 % Build a portfolio object
 P4 = Portfolio('AssetList', names);
@@ -330,6 +356,16 @@ Portfolio_N = Max_Entropy_Portfolio(P4, const, 'Max Entropy Portfolio (N)');
 %  You have to use the minimum number of factors that explains more
 %  than the 90% of the cumulative variance.
 
+% create a portfolio object
+P5 = Portfolio('AssetList', names);
+P5 = setDefaultConstraints(P5); % all weights sum to 1, no shorting, and 100% investment in risky assets
+P5.Name = 'Portfolio with PCA';
+P5.RiskFreeRate = risk_free_rate;
+P5.NumAssets = num_assets;
+
+Portfolio_P = PCA_Ptf(P5, returns_2023, "Portfolio with PCA");
+
+
 %% 7.
 
 % Compute the Portfolio that maximizes, under standard constraints,
@@ -354,13 +390,15 @@ weights_I = array2table(Portfolio_I.Weights, 'RowNames', names, 'VariableNames',
 weights_L = array2table(Portfolio_L.Weights, 'RowNames', names, 'VariableNames', {'Portfolio L'});
 weights_M = array2table(Portfolio_M.Weights, 'RowNames', names, 'VariableNames', {'Portfolio M'});
 weights_N = array2table(Portfolio_N.Weights, 'RowNames', names, 'VariableNames', {'Portfolio N'});
+weights_P = array2table(Portfolio_P.Weights, 'RowNames', names, 'VariableNames', {'Portfolio P'});
 weights_EW = array2table(Portfolio_EW.Weights, 'RowNames', names, 'VariableNames', {'Portfolio EW'});
 weights_Caps = array2table(Portfolio_Caps.Weights, 'RowNames', names, 'VariableNames', {'Portfolio Caps'});
 
 weightsTable = [weights_A, weights_B, weights_C, weights_D,...
                 weights_E, weights_F, weights_G, weights_H,...
                 weights_I, weights_L, weights_M, weights_N,...
-                weights_EW, weights_Caps];
+                weights_P, weights_EW, weights_Caps];
+
 
 metricsTable = table(...
     [Portfolio_A.Return; Portfolio_A.Volatility; Portfolio_A.Sharpe_Ratio; sum(Portfolio_A.Weights)], ...
@@ -375,12 +413,13 @@ metricsTable = table(...
     [Portfolio_L.Return; Portfolio_L.Volatility; Portfolio_L.Sharpe_Ratio; sum(Portfolio_L.Weights)], ...
     [Portfolio_M.Return; Portfolio_M.Volatility; Portfolio_M.Sharpe_Ratio; sum(Portfolio_M.Weights)], ...
     [Portfolio_N.Return; Portfolio_N.Volatility; Portfolio_N.Sharpe_Ratio; sum(Portfolio_N.Weights)], ...
+    [Portfolio_P.Return; Portfolio_P.Volatility; Portfolio_P.Sharpe_Ratio; sum(Portfolio_P.Weights)], ...
     [Portfolio_EW.Return; Portfolio_EW.Volatility; Portfolio_EW.Sharpe_Ratio; sum(Portfolio_EW.Weights)], ...
     [Portfolio_Caps.Return; Portfolio_Caps.Volatility; Portfolio_Caps.Sharpe_Ratio; sum(Portfolio_Caps.Weights)], ...
     'VariableNames', {'Portfolio A', 'Portfolio B', 'Portfolio C', 'Portfolio D', ...
                       'Portfolio E', 'Portfolio F', 'Portfolio G', 'Portfolio H', ...
                       'Portfolio I', 'Portfolio L', 'Portfolio M', 'Portfolio N', ...
-                      'Portfolio EW', 'Portfolio Caps'}, ...
+                      'Portfolio P','Portfolio EW', 'Portfolio Caps'}, ...
     'RowNames', {'Expected Return', 'Volatility', 'Sharpe Ratio', 'Sum of Weights'} ...
 );
 
@@ -396,7 +435,7 @@ disp('                                    Portfolio Weights Table               
 disp('==============================================================================================')
 disp(weightsTable)
 disp_weights(weightsTable)
-
+%%
 % Display the metrics table
 disp('==============================================================================================')
 disp('                                    Portfolio Metrics Table                                   ')
