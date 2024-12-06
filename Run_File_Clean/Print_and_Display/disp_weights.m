@@ -93,8 +93,9 @@ function [] = disp_weights(table, desiredOrder, market)
     end
 
     % Add axis labels and title
+    xticks(1:size(ws, 2));
+    xticklabels(names); 
     xlabel('Portfolio Index');
-    xticklabels(names);
     ylabel('Weight');
     title('Portfolio Weights Distribution');
 
