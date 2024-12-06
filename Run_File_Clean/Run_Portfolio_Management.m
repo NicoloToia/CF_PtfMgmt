@@ -391,6 +391,17 @@ Portfolio_P = PCA_Ptf(P5, returns_2023, 'Portfolio with PCA (P)');
 %  Ratio is the VaR), named Portfolio Q, using the Variance-Covariance
 %  method.
 
+confidence_level = 0.95; % Confidence level for VaR
+
+% build a portfolio object
+P6 = Portfolio('AssetList', names);
+P6 = setDefaultConstraints(P6); % all weights sum to 1, no shorting, and 100% investment in risky assets
+P6 = setAssetMoments(P6, mean_returns, cov_matrix); % set mean returns and covariance matrix
+P6.Name = 'Portfolio with VaR-modified Sharpe Ratio';
+P6.RiskFreeRate = risk_free_rate;
+P6.NumAssets = num_assets;
+
+Portfolio_Q = VaR_modified_SR(P6, confidence_level, caps, 'VaR modified sharpe ratio Portfolio (Portfolio Q)');
 
 %% Output carino dei portafogli insieme 
 
@@ -409,14 +420,14 @@ weights_L = array2table(Portfolio_L.Weights, 'RowNames', names, 'VariableNames',
 weights_M = array2table(Portfolio_M.Weights, 'RowNames', names, 'VariableNames', {'Portfolio M'});
 weights_N = array2table(Portfolio_N.Weights, 'RowNames', names, 'VariableNames', {'Portfolio N'});
 weights_P = array2table(Portfolio_P.Weights, 'RowNames', names, 'VariableNames', {'Portfolio P'});
+weights_Q = array2table(Portfolio_Q.Weights, 'RowNames', names, 'VariableNames', {'Portfolio Q'});
 weights_EW = array2table(Portfolio_EW.Weights, 'RowNames', names, 'VariableNames', {'Portfolio EW'});
 weights_Caps = array2table(Portfolio_Caps.Weights, 'RowNames', names, 'VariableNames', {'Portfolio Caps'});
 
 weightsTable = [weights_A, weights_B, weights_C, weights_D,...
                 weights_E, weights_F, weights_G, weights_H,...
                 weights_I, weights_L, weights_M, weights_N,...
-                weights_P, weights_EW, weights_Caps];
-
+                weights_P, weights_Q, weights_EW, weights_Caps];
 
 metricsTable = table(...
     [Portfolio_A.Return; Portfolio_A.Volatility; Portfolio_A.Sharpe_Ratio; sum(Portfolio_A.Weights)], ...
@@ -432,17 +443,18 @@ metricsTable = table(...
     [Portfolio_M.Return; Portfolio_M.Volatility; Portfolio_M.Sharpe_Ratio; sum(Portfolio_M.Weights)], ...
     [Portfolio_N.Return; Portfolio_N.Volatility; Portfolio_N.Sharpe_Ratio; sum(Portfolio_N.Weights)], ...
     [Portfolio_P.Return; Portfolio_P.Volatility; Portfolio_P.Sharpe_Ratio; sum(Portfolio_P.Weights)], ...
+    [Portfolio_Q.Return; Portfolio_Q.Volatility; Portfolio_Q.Sharpe_Ratio; sum(Portfolio_Q.Weights)], ...
     [Portfolio_EW.Return; Portfolio_EW.Volatility; Portfolio_EW.Sharpe_Ratio; sum(Portfolio_EW.Weights)], ...
     [Portfolio_Caps.Return; Portfolio_Caps.Volatility; Portfolio_Caps.Sharpe_Ratio; sum(Portfolio_Caps.Weights)], ...
     'VariableNames', {'Portfolio A', 'Portfolio B', 'Portfolio C', 'Portfolio D', ...
                       'Portfolio E', 'Portfolio F', 'Portfolio G', 'Portfolio H', ...
                       'Portfolio I', 'Portfolio L', 'Portfolio M', 'Portfolio N', ...
-                      'Portfolio P','Portfolio EW', 'Portfolio Caps'}, ...
+                      'Portfolio P', 'Portfolio Q', 'Portfolio EW', 'Portfolio Caps'}, ...
     'RowNames', {'Expected Return', 'Volatility', 'Sharpe Ratio', 'Sum of Weights'} ...
 );
 
 % Define the threshold for the weights, e.g. if the weight is smaller than the threshold, it is considered 0
-threshold = 1e-10;
+threshold = 1e-5;
 
 % Set the weights smaller than the threshold to 0
 weightsTable{:, :} = arrayfun(@(x) x * (abs(x) >= threshold), weightsTable{:, :});
@@ -475,7 +487,6 @@ disp('                                    Portfolio Performance Metrics 2024    
 disp('==============================================================================================')
 [eq, performancesMetrics] = getEquityandMetrices(weightsTable, prices_2024, "2024");
 disp(performancesMetrics)
-
 
 % Display the time taken
 disp('==============================================================================================')
