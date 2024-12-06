@@ -39,7 +39,7 @@ end
 xlabel('Volatility', 'FontSize', 15);
 ylabel('Portfolio Weights', 'FontSize', 15);
 title('Weights of Efficient Frontier Portfolios', 'FontSize', 25);
-legend(names, 'Location', 'northwest', 'FontSize', 15, 'NumColumns', 2);
+legend(names, 'Location', 'northwest', 'FontSize', 10, 'NumColumns', 2);
 grid on;
 hold off;
 
