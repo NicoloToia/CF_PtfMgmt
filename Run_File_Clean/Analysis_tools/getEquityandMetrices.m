@@ -17,48 +17,39 @@ function [equities,metricesTable] = getEquityandMetrices(Ws, prices, Title)
 hexColors = {
     '#0000EE', '#00EE00', '#EE0000', '#EE00EE', '#EEBE00', ...
     '#F78536', '#000000', '#FFCF83', '#CF56A1', '#A66E38', ...
-    '#ADD8E6', '#FEBBCC', '#FF0060', '#8B9A46', '#FFD744'};
+    '#ADD8E6', '#FEBBCC', '#FF0060', '#8B9A46', '#BBDE23', ...
+    '#34EA21'};
 
 % Convert hexadecimal codes to RGB triplets
 colors = hexToRGB(hexColors);
 
-% Get the names of the portfolios, the weights and the number of portfolios
 ptfNames = Ws.Properties.VariableNames;
 Ws = table2array(Ws);
 numPtfs = size(Ws,2);
-
-% Calculate the returns
 ret = prices(2:end, :) ./ prices(1:end-1,:);
-
-% Initialize the equity and metrics matrices
+logret = tick2ret(prices);
 equities = zeros(size(ret,1), numPtfs);
-metricsMatrix = zeros(5, numPtfs);
-
+metricsMatrix = zeros(7, numPtfs);
 figure;
 hold on;
 for col = 1:numPtfs
-    
-    % Plot Portfolios Performance 
     equity = cumprod(ret * Ws(:,col));
     equity = 100 .* equity / equity(1);
     equities(:,col) = equity;
     [annRet, annVol, Sharpe, MaxDD, Calmar] = getPerformanceMetrics(equity);
-    metricsMatrix(:, col) = [annRet; annVol; Sharpe; MaxDD; Calmar];
+    % Diversification Ration
+    DR = getDiversificationRatio( Ws(:,col), logret);
+    % Entropy
+    Entropy = getEntropy( Ws(:,col));
+    metricsMatrix(:, col) = [annRet; annVol; Sharpe;...
+        MaxDD; Calmar; DR; Entropy];
     plot(equity, 'Color', colors(col, :), 'LineWidth', 3 )
-
 end
-
-% Set the plot properties
-legend(ptfNames, 'Location', 'northwest');
+legend(ptfNames);
 title(Title);
-xlabel('Time (daily)');
-ylabel('Portfolio Value (USD)');
-hold off;
-
-% Create a table of the performance metrics
-rowNames = {'Annual Return', 'Annual Volatility', 'Sharpe Ratio', 'Max Drawdown', 'Calmar Ratio'};
+% rowNames = {'annRet', 'annVol', 'Sharpe', 'MaxDD', 'Calmar'};
+rowNames = {'Annual Return', 'Annual Volatility', 'Sharpe Ratio',...
+    'Max Drawdown', 'Calmar Ratio', 'DivRatio', 'Entropy'};
 metricesTable = array2table(metricsMatrix,...
     'RowNames', rowNames,...
     'VariableNames', ptfNames);
-
-end

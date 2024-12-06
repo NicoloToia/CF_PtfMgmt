@@ -22,8 +22,9 @@ ptfNames = Ws.Properties.VariableNames;
 Ws = table2array(Ws);
 numPtfs = size(Ws,2);
 ret = prices(2:end, :) ./ prices(1:end-1,:);
+logret = tick2ret(prices);
 equities = zeros(size(ret,1), numPtfs);
-metricsMatrix = zeros(5, numPtfs);
+metricsMatrix = zeros(7, numPtfs);
 figure;
 hold on;
 for col = 1:numPtfs
@@ -31,13 +32,19 @@ for col = 1:numPtfs
     equity = 100 .* equity / equity(1);
     equities(:,col) = equity;
     [annRet, annVol, Sharpe, MaxDD, Calmar] = getPerformanceMetrics(equity);
-    metricsMatrix(:, col) = [annRet; annVol; Sharpe; MaxDD; Calmar];
+    % Diversification Ration
+    DR = getDiversificationRatio( Ws(:,col), logret);
+    % Entropy
+    Entropy = getEntropy( Ws(:,col));
+    metricsMatrix(:, col) = [annRet; annVol; Sharpe;...
+        MaxDD; Calmar; DR; Entropy];
     plot(equity, 'Color', colors(col, :), 'LineWidth', 3 )
 end
 legend(ptfNames);
 title(Title);
 % rowNames = {'annRet', 'annVol', 'Sharpe', 'MaxDD', 'Calmar'};
-rowNames = {'Annual Return', 'Annual Volatility', 'Sharpe Ratio', 'Max Drawdown', 'Calmar Ratio'};
+rowNames = {'Annual Return', 'Annual Volatility', 'Sharpe Ratio',...
+    'Max Drawdown', 'Calmar Ratio', 'DivRatio', 'Entropy'};
 metricesTable = array2table(metricsMatrix,...
     'RowNames', rowNames,...
     'VariableNames', ptfNames);

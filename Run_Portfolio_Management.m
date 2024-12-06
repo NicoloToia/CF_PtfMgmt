@@ -417,15 +417,15 @@ disp_pie_weights(weightsTable)
 disp('==============================================================================================')
 disp('                                    Portfolio Performance Metrics 2023                                 ')
 disp('==============================================================================================')
-[eq, performancesMetrics] = getEquityandMetrices(weightsTable, prices_2023, "2023");
+[eq, performancesMetrics] = getEquityandMetrices(weightsTable, prices_2023, "2023")
 disp(performancesMetrics)
 
 % % Display the metrics table 2024
-% disp('==============================================================================================')
-% disp('                                    Portfolio Performance Metrics 2024                                 ')
-% disp('==============================================================================================')
-% [eq, performancesMetrics] = getEquityandMetrices(weightsTable, prices_2024, "2024");
-% disp(performancesMetrics)
+disp('==============================================================================================')
+disp('                                    Portfolio Performance Metrics 2024                                 ')
+disp('==============================================================================================')
+[eq, performancesMetrics] = getEquityandMetrices(weightsTable, prices_2024, "2024");
+disp(performancesMetrics)
 
 
 % Display the time taken
