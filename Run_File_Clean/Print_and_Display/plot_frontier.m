@@ -1,4 +1,4 @@
-function [] = plotFrontier(volatilities, returns, portfolios_vector, title_text, legend_text)
+function [] = plot_frontier(volatilities, returns, portfolios_vector, title_text, legend_text)
 % Function to plot the efficient frontiers and some portfolios on the same plot.
 %
 % INPUTS
