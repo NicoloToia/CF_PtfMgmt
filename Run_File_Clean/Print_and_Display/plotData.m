@@ -57,7 +57,6 @@ disp('==========================================================================
 fprintf('SW-test and K-S test for normality\n')
 disp('====================================================================================================')
 fprintf('Legend: \n- name --> H = 0: accept normality \n- name --> H = 1: reject normality \n\n')
-figure()
 
 for i = 1 : size(returns,2)
     % swtest performs the Shapiro-Francia test when the series is Leptokurtik (kurtosis > 3), 
