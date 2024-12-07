@@ -30,7 +30,7 @@ ptfNames = Ws.Properties.VariableNames;
 Ws = table2array(Ws);
 numPtfs = size(Ws,2);
 ret = prices(2:end, :) ./ prices(1:end-1,:);
-logret = tick2ret(prices);
+logret = tick2ret(prices, 'Method','continuous');
 equities = zeros(size(ret,1), numPtfs);
 metricsMatrix = zeros(7, numPtfs);
 equity_fig = figure;
@@ -48,7 +48,7 @@ for col = 1:numPtfs
 
     metricsMatrix(:, col) = [annRet; annVol; Sharpe;...
         MaxDD; Calmar; DR; Entropy];
-    plot(equity, 'Color', colors(col, :), 'LineWidth', 3 )
+    plot(equity, 'Color', colors(col, :), 'LineWidth', 1.5)
 end
 legend(ptfNames, 'Location','northwest');
 title(Title);

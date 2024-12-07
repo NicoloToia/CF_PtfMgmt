@@ -481,12 +481,26 @@ disp('==========================================================================
 [eq, performancesMetrics] = getEquityandMetrices(weightsTable, prices_2023, "2023");
 disp(performancesMetrics)
 
+% Display the relRC table 2023
+disp('==============================================================================================')
+disp('                                    Relative Risk Contributions 2023                                 ')
+disp('==============================================================================================')
+tableRC_2023 = getRiskContributionsTables(weightsTable, prices_2023);
+disp(tableRC_2023)
+
 % Display the metrics table 2024
 disp('==============================================================================================')
 disp('                                    Portfolio Performance Metrics 2024                                 ')
 disp('==============================================================================================')
 [eq, performancesMetrics] = getEquityandMetrices(weightsTable, prices_2024, "2024");
 disp(performancesMetrics)
+
+% Display the relRC table 2024
+disp('==============================================================================================')
+disp('                                    Relative Risk Contributions 2024                                 ')
+disp('==============================================================================================')
+tableRC_2024 = getRiskContributionsTables(weightsTable, prices_2024);
+disp(tableRC_2024)
 
 % Display the time taken
 disp('==============================================================================================')
