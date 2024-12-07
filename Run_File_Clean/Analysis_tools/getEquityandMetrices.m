@@ -15,10 +15,13 @@ function [equities,metricesTable] = getEquityandMetrices(Ws, prices, Title)
 
 % Define a cell array of hexadecimal color codes
 hexColors = {
-    '#0000EE', '#00EE00', '#EE0000', '#EE00EE', '#EEBE00', ...
-    '#F78536', '#000000', '#FFCF83', '#CF56A1', '#A66E38', ...
-    '#ADD8E6', '#FEBBCC', '#FF0060', '#8B9A46', '#BBDE23', ...
-    '#34EA21'};
+    '#ff0000'; '#e81e63'; '#9c27b0'; 
+    '#673ab7'; '#3f51b5'; '#2196f3'; 
+    '#03a9f4'; '#00bcd4'; '#009688'; 
+    '#4caf50'; '#8bc34a'; '#cddc39'; 
+    '#ffeb3b'; '#ffc107'; '#ff9800'; 
+    '#ff5722'
+};
 
 % Convert hexadecimal codes to RGB triplets
 colors = hexToRGB(hexColors);
@@ -30,7 +33,8 @@ ret = prices(2:end, :) ./ prices(1:end-1,:);
 logret = tick2ret(prices);
 equities = zeros(size(ret,1), numPtfs);
 metricsMatrix = zeros(7, numPtfs);
-figure;
+equity_fig = figure;
+set(equity_fig, 'Units', 'normalized', 'OuterPosition', [0 0 1 1]);
 hold on;
 for col = 1:numPtfs
     equity = cumprod(ret * Ws(:,col));
@@ -41,11 +45,12 @@ for col = 1:numPtfs
     DR = getDiversificationRatio( Ws(:,col), logret);
     % Entropy
     Entropy = getEntropy( Ws(:,col));
+
     metricsMatrix(:, col) = [annRet; annVol; Sharpe;...
         MaxDD; Calmar; DR; Entropy];
     plot(equity, 'Color', colors(col, :), 'LineWidth', 3 )
 end
-legend(ptfNames);
+legend(ptfNames, 'Location','northwest');
 title(Title);
 % rowNames = {'annRet', 'annVol', 'Sharpe', 'MaxDD', 'Calmar'};
 rowNames = {'Annual Return', 'Annual Volatility', 'Sharpe Ratio',...
