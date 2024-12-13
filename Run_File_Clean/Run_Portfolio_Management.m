@@ -8,9 +8,7 @@
 %
 % Date: 2024-11-13
 
-clc
-clear
-close all
+clc, clear, close all;
 % warning off
 
 rng(42); % For reproducibility

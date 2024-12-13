@@ -1,6 +1,5 @@
-
 function Output_struct = VaR_modified_SR(Ptf, confidence_level, caps, name_ptf)
-
+    
     % This function computes the VaR-modified Sharpe Ratio portfolio
     % INPUTS
     % Ptf:                  Portfolio object
