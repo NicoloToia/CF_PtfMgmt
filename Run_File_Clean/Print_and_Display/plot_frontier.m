@@ -31,6 +31,7 @@ xlabel('Volatility', 'FontSize', 15)
 ylabel('Return', 'FontSize', 15)
 title(title_text, 'FontSize', 25);
 legend(legend_text{:}, 'FontSize', 15, 'Location', 'southeast')
+grid on
 hold off
 
 

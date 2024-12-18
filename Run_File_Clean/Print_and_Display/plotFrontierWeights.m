@@ -22,20 +22,6 @@ weights = weights(order, :); % Reorder rows of weights matrix
 colours = colours(order, :); % Reorder colors accordingly
 names = names(order);        % Reorder asset names
 
-% figure;
-% hold on;
-% % Plot each asset's weights
-% for i = 1:size(weights,1)
-%     plot(volatility, weights(i, :), '--', 'LineWidth', 2, 'Color', colors(i, :));
-% end
-% % Add labels, legend, and title
-% xlabel('Volatility', 'FontSize', 15);
-% ylabel('Portfolio Weights', 'FontSize', 15);
-% title('Weights of Efficient Frontier Portfolios', 'FontSize', 25);
-% legend(names, 'Location', 'northwest', 'FontSize', 10, 'NumColumns', 1);
-% grid on;
-% hold off;
-
 % Stacked Area Plot
 figure;
 areaHandle = area(volatility, weights', 'EdgeColor', 'none');
@@ -54,10 +40,12 @@ end
 hold off;
 
 % Add labels, title and legend
+xlim([min(volatility) max(volatility)]);
+ylim([0 1]);
 xlabel('Volatility', 'FontSize', 15);
 ylabel('Portfolio Weights', 'FontSize', 15);
 title('Weights of Efficient Frontier Portfolios', 'FontSize', 25);
-legend(names, 'Location', 'best', 'FontSize', 10, 'NumColumns', 1);
+legend(names, 'Location', 'bestoutside', 'FontSize', 10, 'NumColumns', 1);
 grid on;
 
 end
