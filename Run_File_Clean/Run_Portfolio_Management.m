@@ -243,16 +243,16 @@ Portfolio_G = resampling_method(P1, 'Max sharpe ratio Portfolio with resampling 
 Portfolio_H = resampling_method(P2, 'Max sharpe ratio Portfolio with resampling and constraints (H)', flag);
 
 % Plot the efficient frontier
-% if flag_plot
-%     risk_frontiers = [pf_risk_Ptf_1 pf_risk_Ptf_2];
-%     return_frontiers = [pf_Retn_Ptf_1 pf_Retn_Ptf_2];
-%     portfolios_vector = [Portfolio_A; Portfolio_B; Portfolio_C; Portfolio_D; Portfolio_E; Portfolio_F; Portfolio_G; Portfolio_H];
-%     titleEntry = 'Efficient Frontier Under Additonal Constraints';
-%     legendEntries = {'Standard Efficient Frontier', 'Efficient Frontier with constraints', 'Minimum Variance Portfolio (A)', 'Max sharpe ratio Portfolio (B)',...
-%         'Minimum risk Portfolio with constraints (C)', 'Max sharpe ratio Portfolio with constraints (D)', 'Minimum risk Portfolio with resampling (E)',...
-%         'Minimum risk Portfolio with resampling and constraints (F)', 'Max sharpe ratio Portfolio with resampling (G)', 'Max sharpe ratio Portfolio with resampling and constraints (H)'};
-%     plot_frontier(risk_frontiers, return_frontiers, portfolios_vector, titleEntry, legendEntries)
-% end
+if flag_plot
+    risk_frontiers = [pf_risk_Ptf_1 pf_risk_Ptf_2];
+    return_frontiers = [pf_Retn_Ptf_1 pf_Retn_Ptf_2];
+    portfolios_vector = [Portfolio_A; Portfolio_B; Portfolio_C; Portfolio_D; Portfolio_E; Portfolio_F; Portfolio_G; Portfolio_H];
+    titleEntry = 'Robust Frontier Portoflios against Original Data Frontiers';
+    legendEntries = {'Standard Efficient Frontier', 'Efficient Frontier with constraints', 'Minimum Variance Portfolio (A)', 'Max sharpe ratio Portfolio (B)',...
+        'Minimum risk Portfolio with constraints (C)', 'Max sharpe ratio Portfolio with constraints (D)', 'Minimum risk Portfolio with resampling (E)',...
+        'Minimum risk Portfolio with resampling and constraints (F)', 'Max sharpe ratio Portfolio with resampling (G)', 'Max sharpe ratio Portfolio with resampling and constraints (H)'};
+    plot_frontier(risk_frontiers, return_frontiers, portfolios_vector, titleEntry, legendEntries)
+end
 
 %% 4. Black-Litterman Model
 
