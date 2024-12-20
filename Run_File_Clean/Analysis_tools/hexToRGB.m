@@ -1,4 +1,5 @@
 function rgb = hexToRGB(hexArray)
+    % Convert hexadecimal color codes to RGB triplets
     n = length(hexArray);
     rgb = zeros(n, 3); % Preallocate for speed
     for i = 1:n

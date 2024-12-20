@@ -21,8 +21,8 @@ function Output_struct = maxSharpPortfolio(Ptf, name_ptf)
 
     % Build a struct for the output
     Output_struct = struct('Volatility', maxSharpeRisk_Ptf, 'Weights', maxSharpeWgt_Ptf,...
-        'Return', maxSharpeRet_Ptf, 'Sharpe_Ratio', maxSharpeSR_Ptf, 'Name', name_ptf, 'Ptf', Ptf);
-    % Output_struct.Name = name_ptf;
-    % Output_struct.Ptf = Ptf;
+        'Return', maxSharpeRet_Ptf, 'Sharpe_Ratio', maxSharpeSR_Ptf);
+    Output_struct.Name = name_ptf;
+    Output_struct.Ptf = Ptf;
     
 end

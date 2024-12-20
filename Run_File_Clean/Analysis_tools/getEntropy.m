@@ -1,4 +1,6 @@
 function e = getEntropy(x)
+% This function computes the entropy of a vector x
+
 e = 0;
 for i=1:length(x)
     if(x(i)<1e-6)

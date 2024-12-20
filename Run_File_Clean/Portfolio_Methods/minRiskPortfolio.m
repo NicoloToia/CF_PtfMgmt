@@ -23,8 +23,8 @@ function Output_struct = minRiskPortfolio(Ptf, pwgt, pf_risk_Ptf, name_ptf)
 
     % Build a struct for the output
     Output_struct = struct('Volatility', minRisk_Ptf, 'Weights', minRiskWgt_Ptf,...
-        'Return', minRiskRet_Ptf, 'Sharpe_Ratio', minRiskSR_Ptf, 'Name', name_ptf, 'Ptf', Ptf);
-    % Output_struct.Name = name_ptf;
-    % Output_struct.Ptf = Ptf;
+        'Return', minRiskRet_Ptf, 'Sharpe_Ratio', minRiskSR_Ptf);
+    Output_struct.Name = name_ptf;
+    Output_struct.Ptf = Ptf;
 
 end
