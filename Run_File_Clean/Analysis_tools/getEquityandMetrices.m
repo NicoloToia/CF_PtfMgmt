@@ -1,17 +1,18 @@
-function [equities,metricesTable] = getEquityandMetrices(Ws, prices, Title)
+function [equities,metricesTable] = getEquityandMetrices(Ws, prices, Title, dates)
 
 % This function plots the equity of the portfolios and calculates the
 % performance metrics for each portfolio.
 %
 % INPUTS:
-% Ws: weights of the portfolios -- Table
-% prices: prices of the assets
-% ptfNames: names of the portfolios
-% Title: title of the plot
+% Ws:       Weights of the portfolios -- Table
+% prices:   Prices of the assets
+% ptfNames: Names of the portfolios
+% Title:    Title of the plot
+% dates:    Dates of the assets
 %
 % OUTPUTS:
-% equities: equity of the portfolios
-% metricesTable: table of the performance metrics
+% equities:         Equity of the portfolios
+% metricesTable:    Table of the performance metrics
 
 % Define a cell array of hexadecimal color codes
 hexColors = {
@@ -48,10 +49,12 @@ for col = 1:numPtfs
 
     metricsMatrix(:, col) = [annRet; annVol; Sharpe;...
         MaxDD; Calmar; DR; Entropy];
-    plot(equity, 'Color', colors(col, :), 'LineWidth', 1.5)
+    plot(dates, equity, 'Color', colors(col, :), 'LineWidth', 1.5)
 end
 legend(ptfNames, 'Location','northwest');
-title(Title);
+xlabel("Dates", 'FontSize', 15);
+ylabel("Equity", 'FontSize', 15);
+title(Title, 'FontSize', 25);
 % rowNames = {'annRet', 'annVol', 'Sharpe', 'MaxDD', 'Calmar'};
 rowNames = {'Annual Return', 'Annual Volatility', 'Sharpe Ratio',...
     'Max Drawdown', 'Calmar Ratio', 'DivRatio', 'Entropy'};
