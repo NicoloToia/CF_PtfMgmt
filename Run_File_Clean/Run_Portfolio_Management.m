@@ -479,6 +479,7 @@ disp('                                    Portfolio Performance Metrics 2023    
 disp('==============================================================================================')
 [~, performancesMetrics2023] = getEquityandMetrices(weightsTable, prices_2023, "2023", dates_2023(2:end));
 disp(performancesMetrics2023)
+plotMetrics(performancesMetrics2023)
 
 % Display the relRC table 2023
 disp('==============================================================================================')
@@ -493,6 +494,7 @@ disp('                                    Portfolio Performance Metrics 2024    
 disp('==============================================================================================')
 [eq, performancesMetrics2024] = getEquityandMetrices(weightsTable, prices_2024, "2024", dates_2024(2:end));
 disp(performancesMetrics2024)
+plotMetrics(performancesMetrics2024)
 
 % Display the relRC table 2024
 disp('==============================================================================================')
