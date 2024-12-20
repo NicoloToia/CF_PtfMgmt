@@ -48,10 +48,12 @@ dates = datetime(dates);
 start_date = datetime(2023,1,1);
 end_date = datetime(2023,12,31);
 prices_2023 = prices_data(dates >= start_date & dates <= end_date, :);
+dates_2023 = dates(dates >= start_date & dates <= end_date, :);
 % Filter prices for 2024
 prices_2024 = prices_data(dates > end_date, :);
+dates_2024 = dates(dates > end_date, :);
 
-% Calculate daily returns for each index in 2023
+% Calculate daily log-returns for each index in 2023
 returns_2023 = diff(log(prices_2023));
 
 mean_returns = mean(returns_2023)';
@@ -94,6 +96,7 @@ excludeIdx_LV = ismember(Ptf_AMkt.AssetList, "LowVolatility");
 sectorIdx = ismember(Ptf_AMkt.AssetList, sectors);
 
 %% EW Portfolio
+% Create an Equally Weighted Portfolio
 Portfolio_EW = struct();
 Portfolio_EW.Weights = ones(num_assets,1)/num_assets;
 Portfolio_EW.Return = mean_returns' * Portfolio_EW.Weights;
@@ -102,6 +105,7 @@ Portfolio_EW.Volatility = ...
 Portfolio_EW.Sharpe_Ratio = (Portfolio_EW.Return - risk_free_rate)...
     / Portfolio_EW.Volatility;
 %% Caps Portfolio
+% Create a Portfolio with weights proportional to the capitalizations
 Portfolio_Caps = struct();
 Portfolio_Caps.Weights = caps' ./ sum(caps);
 Portfolio_Caps.Return = mean_returns' * Portfolio_Caps.Weights;
@@ -310,7 +314,7 @@ flag = 0;
 flag = 1;
 [Portfolio_L, P3] = BlackLitterman(P3, returns_lnr, caps, lambda, [view1, view2], 'Maximum Sharpe Ratio Portfolio with Black Litterman (L)', flag);
 
-%% 5.  Compute the Maximum Diversified Portfolio and the Maximum Entropy (in asset volatility) Portfolio
+%% 5.  Compute Maximum Diversified Portfolio and the Maximum Entropy (in asset volatility) Portfolio
 
 % Compute the Maximum Diversified Portfolio (Portfolio M) and the
 % Maximum Entropy (in asset volatility) Portfolio (Portfolio N), under
@@ -362,14 +366,14 @@ Portfolio_N = Max_Entropy_Portfolio(P4, const, 'Max Entropy Portfolio (N)');
 %     plot_frontier(risk_frontiers, return_frontiers, portfolios_vector, titleEntry, legendEntries)
 % end
 
-%% 6. 
+%% 6. Portfolio with PCA
 
 % Compute the portfolio (Portfolio P), using the Principal Component
 %  Analysis, that maximizes its expected return under the following con
 % straints (to be considered all at once):
 %  • Standard constraints,
 %  • Thevolatility of the portfolio has to be equal or less than a target
-%  volatility of σtgt = 0.1
+%  volatility of σtgt = 0.7
 %  You have to use the minimum number of factors that explains more
 %  than the 90% of the cumulative variance.
 
@@ -382,7 +386,7 @@ P5.NumAssets = num_assets;
 
 Portfolio_P = PCA_Ptf(P5, returns_2023, 'Portfolio with PCA (P)');
 
-%% 7.
+%% 7. Portfolio with VaR modified Sharpe Ratio
 
 % Compute the Portfolio that maximizes, under standard constraints,
 %  the VaR-modified Sharpe Ratio (i.e. the risk in the formula of Sharpe
@@ -401,10 +405,9 @@ P6.NumAssets = num_assets;
 
 Portfolio_Q = VaR_modified_SR(P6, confidence_level, caps, 'VaR modified sharpe ratio Portfolio (Portfolio Q)');
 
-%% Output carino dei portafogli insieme 
+%% Display the results of the portfolios: weights and performance metrics 
 
-% % Combine the weights for each portfolio
-% weights_A = array2table(minRiskWgt_P1, 'RowNames', names, 'VariableNames', {'Portfolio A'});
+% Combine the weights for each portfolio
 weights_A = array2table(Portfolio_A.Weights, 'RowNames', names, 'VariableNames', {'Portfolio A'});
 weights_B = array2table(Portfolio_B.Weights, 'RowNames', names, 'VariableNames', {'Portfolio B'});
 weights_C = array2table(Portfolio_C.Weights, 'RowNames', names, 'VariableNames', {'Portfolio C'});
@@ -470,14 +473,12 @@ disp('                                    Portfolio Metrics Table               
 disp('==============================================================================================')
 disp(metricsTable)
 
-disp_pie_weights(weightsTable)
-
 % Display the metrics table 2023
 disp('==============================================================================================')
 disp('                                    Portfolio Performance Metrics 2023                                 ')
 disp('==============================================================================================')
-[eq, performancesMetrics] = getEquityandMetrices(weightsTable, prices_2023, "2023");
-disp(performancesMetrics)
+[~, performancesMetrics2023] = getEquityandMetrices(weightsTable, prices_2023, "2023", dates_2023(2:end));
+disp(performancesMetrics2023)
 
 % Display the relRC table 2023
 disp('==============================================================================================')
@@ -490,8 +491,8 @@ disp(tableRC_2023)
 disp('==============================================================================================')
 disp('                                    Portfolio Performance Metrics 2024                                 ')
 disp('==============================================================================================')
-[eq, performancesMetrics] = getEquityandMetrices(weightsTable, prices_2024, "2024");
-disp(performancesMetrics)
+[eq, performancesMetrics2024] = getEquityandMetrices(weightsTable, prices_2024, "2024", dates_2024(2:end));
+disp(performancesMetrics2024)
 
 % Display the relRC table 2024
 disp('==============================================================================================')
