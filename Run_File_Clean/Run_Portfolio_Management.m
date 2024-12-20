@@ -455,7 +455,7 @@ metricsTable = table(...
 );
 
 % Define the threshold for the weights, e.g. if the weight is smaller than the threshold, it is considered 0
-threshold = 1e-5;
+threshold = 1e-4;
 
 % Set the weights smaller than the threshold to 0
 weightsTable{:, :} = arrayfun(@(x) x * (abs(x) >= threshold), weightsTable{:, :});
