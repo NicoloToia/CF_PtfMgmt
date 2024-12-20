@@ -20,7 +20,7 @@ function Output_struct = resampling_method(Ptf, name_ptf, flag)
     num_assets = Ptf.NumAssets;
 
     % number of resampling simulations
-    N = 100;
+    N = 500;
     % # of points along the efficient frontier
     num_frontier_points = 100;
 
@@ -30,14 +30,10 @@ function Output_struct = resampling_method(Ptf, name_ptf, flag)
     Weights_sim = zeros(num_assets, num_frontier_points, N);
 
     for n = 1:N
-        
-        % resampledReturns = mvnrnd(Ptf.AssetMean, Ptf.AssetCovar, 252); % DA CONTROLAER
-        % New_mean_returns = mean(resampledReturns)';
-        % NewCov = cov(resampledReturns);
-
-        resampledReturns = mvnrnd(Ptf.AssetMean, Ptf.AssetCovar); % da fare check
-        New_mean_returns =resampledReturns;               
-        NewCov = iwishrnd(Ptf.AssetCovar,num_assets);
+        % Resample the returns and6 estimate the frontier
+        resampledReturns = mvnrnd(Ptf.AssetMean, Ptf.AssetCovar, 252);
+        New_mean_returns = mean(resampledReturns)';
+        NewCov = cov(resampledReturns);
 
         Ptf_sim = setAssetMoments(Ptf, New_mean_returns, NewCov);
 
@@ -56,7 +52,7 @@ function Output_struct = resampling_method(Ptf, name_ptf, flag)
     pf_risk = mean(Risk_sim, 2);
     pf_Retn = mean(Ret_sim, 2);
   
-    if flag == 0
+    if flag == 0    % Minimum risk portfolio
 
         % Find the minimum risk portfolio (Minimum Variance Portfolio with resampling)
         [minRisk_Rsim, idx_minRisk] = min(pf_risk);
@@ -69,11 +65,11 @@ function Output_struct = resampling_method(Ptf, name_ptf, flag)
 
         % Build a struct for the output
         Output_struct = struct('Volatility', minRisk_Rsim, 'Weights', minRiskWgt_Rsim,...
-            'Return', minRiskRet_Rsim, 'Sharpe_Ratio', minRiskSR_Rsim, 'Name', name_ptf, 'Ptf', Ptf);
-        % Output_struct.Name = name_ptf;
-        % Output_struct.Ptf = Ptf;
+            'Return', minRiskRet_Rsim, 'Sharpe_Ratio', minRiskSR_Rsim);
+        Output_struct.Name = name_ptf;
+        Output_struct.Ptf = Ptf;
         
-    elseif flag == 1
+    elseif flag == 1    % Maximum Sharpe ratio portfolio
 
         % Find the maximum Sharpe ratio portfolio (Maximum Sharpe Ratio Portfolio with resampling)
         sharpeRatio_Rsim = (pf_Retn - Ptf.RiskFreeRate) ./ pf_risk;
@@ -87,9 +83,9 @@ function Output_struct = resampling_method(Ptf, name_ptf, flag)
 
         % Build a struct for the output
         Output_struct = struct('Volatility', maxSharpeRisk_Rsim, 'Weights', maxSharpeWgt_Rsim,...
-            'Return', maxSharpeRet_Rsim, 'Sharpe_Ratio', maxSharpeSR_Rsim, 'Name', name_ptf, 'Ptf', Ptf);
-        % Output_struct.Name = name_ptf;
-        % Output_struct.Ptf = Ptf;
+            'Return', maxSharpeRet_Rsim, 'Sharpe_Ratio', maxSharpeSR_Rsim);
+        Output_struct.Name = name_ptf;
+        Output_struct.Ptf = Ptf;
 
     else
         % Error message, not valid flag
