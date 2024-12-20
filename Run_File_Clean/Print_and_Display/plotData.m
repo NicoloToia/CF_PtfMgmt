@@ -87,15 +87,6 @@ for i = 1:16
     title(names(i));
 end
 
-%% Scatter
-% for i = 1:16
-%     for j = 1:16
-%     subplot(16,16, (i-1) * 16 + j);
-%     xx = returns(:,i);
-%     yy = returns(:,j);
-%     scatter(xx, yy)
-%     end
-% end
 %% Corr plot
 V = corr(returns);
 figure;
@@ -104,3 +95,4 @@ ax = gca; % Get current axes
 ax.XDisplayLabels = names;
 ax.YDisplayLabels = names;
 colormap summer;
+end
