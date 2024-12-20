@@ -19,6 +19,7 @@ function [] = disp_weights(table, desiredOrder, market)
     colors = hexToRGB(hexColors);
 
     %% Pie chart
+
     ws = table2array(table);
     names = table.Properties.VariableNames;
     asset_names = table.Properties.RowNames;
@@ -64,30 +65,29 @@ function [] = disp_weights(table, desiredOrder, market)
         'NumColumns',2);
     sgtitle("Portfolio Weights");
 
-    %% Stacked bar plot
-    % Create stacked bar plot
+%% Create stacked bar plot
+
     figure;
-    b = bar(ws', 'stacked'); % Create stacked bar plot
+    b = bar(ws', 'stacked'); 
 
     % Assign consistent colors for each asset
     for j = 1:n_assets
-        b(j).FaceColor = 'flat'; % Enable individual bar coloring
-        b(j).CData = repmat(colors(j,:), size(ws, 2), 1); % Assign consistent color to the asset
+        b(j).FaceColor = 'flat'; 
+        b(j).CData = repmat(colors(j,:), size(ws, 2), 1);
     end
 
     % Primary legend for individual assets
-    legend(asset_names, 'Location', 'bestoutside'); % Add legend for the assets
+    legend(asset_names, 'Location', 'bestoutside'); 
 
     % Secondary legend clustering the assets into groups
     x_offset = 0.83;
     y_start = 0.55;
     y_step = 0.05;
 
+    % Perzonlize the groups
     for i = 1:length(group_names)
-        % Add a rectangle with the group color
         annotation('rectangle', 'Position', [x_offset, y_start - (i - 1) * y_step, 0.02, 0.02], ...
                 'FaceColor', group_colors(i, :), 'EdgeColor', 'none');
-        % Add the group name
         annotation('textbox', 'Position', [x_offset + 0.03, y_start - (i - 1) * y_step, 0.1, 0.02], ...
                 'String', group_names{i}, 'LineStyle', 'none', 'FontSize', 10);
     end
@@ -98,5 +98,26 @@ function [] = disp_weights(table, desiredOrder, market)
     xlabel('Portfolio Index');
     ylabel('Weight');
     title('Portfolio Weights Distribution');
+
+    % Add value labels for weights > 3% 
+    hold on;
+    for col = 1:size(ws, 2) 
+        cumSum = cumsum(ws(:, col));
+        for row = 1:n_assets
+            value = ws(row, col);
+            if value > 0.03
+                if row == 1
+                    yPos = value / 2;
+                else
+                    yPos = cumSum(row-1) + value / 2;
+                end
+
+                text(col, yPos, sprintf('%.2f%%', value*100), ...
+                    'HorizontalAlignment', 'center', 'VerticalAlignment', 'middle', ...
+                    'Color', 'k', 'FontSize', 8, 'FontWeight', 'bold');
+            end
+        end
+    end
+    hold off;
 
 end
