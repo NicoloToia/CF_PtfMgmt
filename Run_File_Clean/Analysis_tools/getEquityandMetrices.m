@@ -32,6 +32,7 @@ Ws = table2array(Ws);
 numPtfs = size(Ws,2);
 ret = prices(2:end, :) ./ prices(1:end-1,:);
 logret = tick2ret(prices, 'Method','continuous');
+cov_matrix = cov(logret);
 equities = zeros(size(ret,1), numPtfs);
 metricsMatrix = zeros(7, numPtfs);
 equity_fig = figure;
@@ -45,7 +46,7 @@ for col = 1:numPtfs
     % Diversification Ration
     DR = getDiversificationRatio( Ws(:,col), logret);
     % Entropy
-    Entropy = getEntropy( Ws(:,col));
+    Entropy = getEntropy( Ws(:,col), cov_matrix);
 
     metricsMatrix(:, col) = [annRet; annVol; Sharpe;...
         MaxDD; Calmar; DR; Entropy];
@@ -61,3 +62,4 @@ rowNames = {'Annual Return', 'Annual Volatility', 'Sharpe Ratio',...
 metricesTable = array2table(metricsMatrix,...
     'RowNames', rowNames,...
     'VariableNames', ptfNames);
+end
