@@ -1,7 +1,7 @@
 function [] = plot_frontier(volatilities, returns, portfolios_vector, title_text, legend_text)
 % Function to plot the efficient frontiers and some portfolios on the same plot.
 %
-% INPUTS
+% INPUTS:
 % volatilities:         Matrix in which the i-th column represents the
 %                       volatilities' values of the i-th frontier
 % returns:              Matrix in which the i-th column represents the

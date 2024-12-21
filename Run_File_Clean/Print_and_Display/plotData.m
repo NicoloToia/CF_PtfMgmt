@@ -1,7 +1,8 @@
 function [] = plotData(returns, prices, names)
-% This function plots the returns and prices of the assets in the dataset
-% and performs the Shapiro-Wilk/Shapiro-Francia normality test and the
-% Kolmogorov-Smirnov Test.
+% This function plots the returns and prices of the assets in the dataset,
+% it plots the QQ-plot, the correlation plot and the histograms of the
+% returns, and performs the Shapiro-Wilk/Shapiro-Francia and the
+% Kolmogorov-Smirnov Normality tests.
 %
 % INPUTS:
 % returns:  Log returns of the assets
